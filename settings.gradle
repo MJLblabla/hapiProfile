@@ -1,0 +1,5 @@
+rootProject.name='AopTest'
+include ':app'
+include ':hapiaop'
+include ':mylibrary'
+include ':hapiplugin'
