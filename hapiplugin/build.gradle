@@ -1,8 +1,8 @@
-
-apply plugin: 'groovy'
-
-apply plugin: 'maven'
-
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+    id 'maven'
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -27,22 +27,23 @@ repositories {
     google()
     jcenter()
     mavenCentral()
-    maven {// 添加Maven的本地依赖
-        url uri('./repository')
-    }
 
-//    classpath 'com.hapi.hapiplugin:HapiAppMonitorPlugin:1.0.0'
 
 }
 
 
-group   = 'com.hapi.aop'
+group   = 'com.hapi'
 version = '1.0.0'
 
-uploadArchives {
+publishing {
     repositories {
-        mavenDeployer {
-            repository(url: uri("../repository"))
+        maven {
+            url = uri("$rootDir/repo")
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            from components.java
         }
     }
 }

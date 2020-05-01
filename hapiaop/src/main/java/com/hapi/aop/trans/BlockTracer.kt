@@ -4,7 +4,7 @@ import android.util.Log
 import com.hapi.aop.LooperMonitor
 import com.hapi.aop.MethodBeatMonitor
 
-class BlockTracer(val blockCostIssue:Int = 2000)  : LooperMonitor.LoopListener {
+class BlockTracer(val blockCostIssue:Int = 2)  : LooperMonitor.LoopListener {
 
     private val TAG = "ChoreographerMonitor"
     private var startTime = 0

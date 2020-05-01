@@ -17,7 +17,7 @@ class MethodBeatTransForm extends AbsTransForm{
     }
     @Override
     void transformJarInput(JarInput jarInput) {
-
+        BeatInject.injectCost(jarInput.file,mProject)
     }
 
     @Override

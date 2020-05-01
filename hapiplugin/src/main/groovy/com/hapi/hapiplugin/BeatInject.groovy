@@ -3,23 +3,22 @@ package com.hapi.hapiplugin
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import javassist.CtNewMethod
 import org.gradle.api.Project
+import java.lang.String
 
 
-class BeatInject{
+class BeatInject {
 
 
-    private static final String COST_SUFFIX = '$$Impl'
-
-    static final ClassPool sClassPool = ClassPool.getDefault()
-
+    static final ClassPool sClassPool = ClassPool.getDefault();
 
     static void injectCost(File baseClassPath, Project project) {
         println "injectUtil ${baseClassPath.path}"
-        //把类路径添加到classpool
-        sClassPool.appendClassPath(baseClassPath.path)
+
         //添加Android相关的类
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
+
         if (baseClassPath.isDirectory()) {
             //遍历文件获取类
             baseClassPath.eachFileRecurse { classFile ->
@@ -29,7 +28,8 @@ class BeatInject{
 
                     //把类文件路径转成类名
                     def className = convertClass(baseClassPath.path, classFile.path)
-                    println className
+                    println "className" + className
+
                     //注入代码
                     inject(baseClassPath.path, className)
                 }
@@ -37,19 +37,19 @@ class BeatInject{
         }
     }
 
-    static void injectSingleCost(File file,String baseClassPath, Project project) {
-        println "injectUtil ${baseClassPath.path}"
+    static void injectSingleCost(File file, String baseClassPath, Project project) {
+        println "project.android.bootClasspath[0].toString()  ${project.android.bootClasspath[0].toString()}"
         //把类路径添加到classpool
-        sClassPool.appendClassPath(baseClassPath)
+
         //添加Android相关的类
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-         def classFile = file.path
+        def classFile = file.path
         if (check(classFile)) {
-            println "find class : ${classFile}"
+            println "injectSingleCost find class : ${classFile}"
 
             //把类文件路径转成类名
             def className = convertClass(baseClassPath, classFile)
-            println className
+            println "injectSingleCost" + className
             //注入代码
             inject(baseClassPath, className)
         }
@@ -61,31 +61,28 @@ class BeatInject{
      * @param clazz
      */
     private static void inject(String baseClassPath, String clazz) {
-        def ctClass = sClassPool.get(clazz)
-        //解冻
-        if (ctClass.isFrozen()) {
-            ctClass.defrost()
-        }
-        ctClass.getDeclaredMethods().each { ctMethod ->
-            //判断是否要处理
-            if (ctMethod.hasAnnotation(MethodCost.class)) {
-                println "before ${ctMethod.name}"
-                //把原方法改名，生成一个同名的代理方法，添加耗时计算
-                def name = ctMethod.name
-                def newName = name + COST_SUFFIX
-                println "after ${newName}"
-                def body = generateBody(ctClass, ctMethod, newName)
-                println "generateBody : ${body}"
-                //原方法改名
-                ctMethod.setName(newName)
-                //生成代理方法
-                def proxyMethod = CtNewMethod.make(ctMethod.modifiers, ctMethod.returnType, name, ctMethod.parameterTypes, ctMethod.exceptionTypes, body, ctClass)
-                //把代理方法添加进来
-                ctClass.addMethod(proxyMethod)
+
+        println "把类路径添加到classpool ${baseClassPath}  ${clazz}"
+        sClassPool.appendClassPath(baseClassPath)
+         sClassPool.appendClassPath("/home/mjl/Downloads/aop/hapiaop/build/intermediates/javac/debug/classes/")
+        try {
+            def ctClass = sClassPool.get(clazz)
+            //解冻
+            if (ctClass.isFrozen()) {
+                ctClass.defrost()
             }
+            ctClass.getDeclaredMethods().each { ctMethod ->
+                println " ctMethod ${ctMethod.getLongName()}"
+                def methodSign = ctMethod.getLongName().toString()
+                ctMethod.insertBefore("com.hapi.aop.MethodBeatMonitorJava.logS( \"${methodSign}\");")
+                ctMethod.insertAfter("com.hapi.aop.MethodBeatMonitorJava.logE( \"${methodSign}\");")
+            }
+            ctClass.writeFile(baseClassPath)
+            ctClass.detach()//释放
+        } catch (Exception e) {
+            println "e 插桩 错误  ${e.toString()}"
         }
-        ctClass.writeFile(baseClassPath)
-        ctClass.detach()//释放
+
     }
 
     /**
@@ -95,15 +92,15 @@ class BeatInject{
      * @param newName
      * @return
      */
-    private static String generateBody(CtClass ctClass, CtMethod ctMethod, String newName){
+    private static String generateBody(CtClass ctClass, CtMethod ctMethod, String newName) {
         //方法返回类型
         def returnType = ctMethod.returnType.name
         println returnType
         //生产的方法返回值
         def methodResult = "${newName}(\$\$);"
-        if (!"void".equals(returnType)){
+        if (!"void".equals(returnType)) {
             //处理返回值
-            methodResult = "${returnType} result = "+ methodResult
+            methodResult = "${returnType} result = " + methodResult
         }
         println methodResult
         return "{long costStartTime = System.currentTimeMillis();" +
@@ -126,7 +123,6 @@ class BeatInject{
     }
 
 
-
     //过滤掉一些生成的类
     private static boolean check(File file) {
         if (file.isDirectory()) {
@@ -135,7 +131,7 @@ class BeatInject{
 
         def filePath = file.path
 
-        return !filePath.contains('R$') &&
+        return filePath.contains('.class') && !filePath.contains('R$') &&
                 !filePath.contains('R.class') &&
                 !filePath.contains('BuildConfig.class')
     }

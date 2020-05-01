@@ -7,7 +7,7 @@ import java.lang.reflect.Method
 
 object ChoreographerMonitor : IMonitor {
 
-    private var isForeground = false
+    private var isForeground = true
     private var lastframeTimeNanos = -1L
     private var lastSecFrameTimeNanos = -1L
     private var fpsCount = 0
@@ -15,20 +15,17 @@ object ChoreographerMonitor : IMonitor {
     private val TAG = "ChoreographerMonitor"
     private val choreographer by lazy { Choreographer.getInstance() }
     private val fpsFrameCallback = Choreographer.FrameCallback {
-        Log.d("TAG", "请求一阵")
         onFrame(it)
     }
 
     private fun onFrame(frameTimeNanos: Long) {
-        if (!isForeground) {
-            return
-        }
         if (lastSecFrameTimeNanos <= 0) {
-            lastSecFrameTimeNanos = frameTimeNanos
             fpsCount = 0
+            lastSecFrameTimeNanos= frameTimeNanos
         }
 
         fpsCount++
+
         lastframeTimeNanos = frameTimeNanos;
         isFpsing = true
         if (isStart) {
@@ -57,23 +54,22 @@ object ChoreographerMonitor : IMonitor {
             }
 
             override fun dispatchMsgStop() {
-                Log.d(TAG, "dispatchMsgStop ${isFpsing}")
                 if (isFpsing) {
-                    val current = System.currentTimeMillis()
+                    val current =System.nanoTime();
                     val cost = if (lastframeTimeNanos == 0L) {
                         0
                     } else {
-                        val thisFrameTime = (lastframeTimeNanos / 1000000)
-                        if (lastSecFrameTimeNanos >= 0 && current - thisFrameTime > 60 * 1000) {
+                        val costthis= (  (current - lastframeTimeNanos) /1000000)
+                        if (lastSecFrameTimeNanos >= 0 && (current - lastSecFrameTimeNanos)/1000000 > 1000) {
                             fpsListerListers.forEach {
                                 it.onLastSecCost(fpsCount)
                             }
                             resetFrameCount()
                         }
-                        (current - thisFrameTime)
+                        costthis
                     }
 
-
+                    isFpsing=false
                     fpsListerListers.forEach {
                         it.onFrame(cost)
                     }

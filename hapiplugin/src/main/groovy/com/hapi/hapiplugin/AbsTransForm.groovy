@@ -8,6 +8,12 @@ import com.android.build.api.transform.TransformException
 import com.android.build.api.transform.TransformInput
 import com.android.build.api.transform.TransformInvocation
 import com.android.build.api.transform.TransformOutputProvider
+import com.android.build.gradle.internal.pipeline.TransformManager
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.codec.digest.DigestUtils
+import org.gradle.api.Project
+import com.android.build.api.transform.Format
+
 
 abstract class AbsTransForm extends Transform {
 
@@ -44,17 +50,17 @@ abstract class AbsTransForm extends Transform {
         transformInvocation.getInputs().each { TransformInput input ->
             input.jarInputs.each { JarInput jarInput ->
                 //处理Jar
-             //   processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
-
-                //不处理jar文件
-                    // 重命名输出文件（同目录copyFile会冲突）
-                    def jarName = jarInput.name
-                    def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
-                    if (jarName.endsWith(".jar")) {
-                        jarName = jarName.substring(0, jarName.length() - 4)
-                    }
-                    def dest = transformInvocation.outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
-                    FileUtils.copyFile(jarInput.file, dest)
+                processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
+//
+//                //不处理jar文件
+//                    // 重命名输出文件（同目录copyFile会冲突）
+//                    def jarName = jarInput.name
+//                    def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
+//                    if (jarName.endsWith(".jar")) {
+//                        jarName = jarName.substring(0, jarName.length() - 4)
+//                    }
+//                    def dest = transformInvocation.outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
+//                    FileUtils.copyFile(jarInput.file, dest)
             }
 
             input.directoryInputs.each { DirectoryInput directoryInput ->
@@ -90,7 +96,7 @@ abstract class AbsTransForm extends Transform {
             case Status.ADDED:
             case Status.CHANGED:
                 //处理有变化的
-                transformJarInputWhenIncremental(jarInput.getFile(), dest, jarInput.status)
+                transformJarInputWhenIncremental(jarInput, dest, jarInput.status)
                 break
             case Status.REMOVED:
                 //移除Removed

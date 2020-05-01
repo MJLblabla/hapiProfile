@@ -10,6 +10,7 @@ class FrameTracer(private var frameCostIssues:Int = 20) :ChoreographerMonitor.Fp
     private val TAG = "ChoreographerMonitor"
 
     override fun onFrame(currentFrameCost: Long) {
+        Log.d(TAG,"单帧耗时 ${currentFrameCost}")
         if(currentFrameCost>frameCostIssues){
             Log.d(TAG,"单帧耗时过大 ${currentFrameCost}")
             MethodBeatMonitor.issue()

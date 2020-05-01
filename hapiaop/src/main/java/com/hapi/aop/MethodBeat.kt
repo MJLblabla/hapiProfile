@@ -1,8 +1,33 @@
 package com.hapi.aop
 
 import android.view.ViewParent
+import com.alibaba.fastjson.annotation.JSONField
 
-class MethodBeat(val methodSign: String,val cost:Int,val parent: MethodBeat?=null, val child:ArrayList<MethodBeat> = ArrayList<MethodBeat>())
+class MethodBeat {
+
+    constructor()
+
+    constructor(
+        methodSign: String,
+        cost: Int,
+        parent: MethodBeat? = null
+    ) {
+        this.methodSign = methodSign
+        this.cost = cost
+        this.parent = parent
+    }
+
+    var methodSign: String? = ""
+    var cost: Int = 0
+
+    @JSONField(serialize = false)
+    var parent: MethodBeat? = null
+    @JSONField(serialize = false)
+    var startTime = 0
+    val zChild: ArrayList<MethodBeat> = ArrayList<MethodBeat>()
 
 
-class MethodBeatTemp (val methodSign: String,val startTime :Int)
+}
+
+
+
