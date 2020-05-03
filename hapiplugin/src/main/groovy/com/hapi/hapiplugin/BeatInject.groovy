@@ -24,13 +24,19 @@ class BeatInject {
 
 
     static final ClassPool sClassPool = ClassPool.getDefault();
+    static def  methodBeatClass = null
+
+
 
     static void injectJarCost(JarInput jarInput, Project project, TransformOutputProvider outputProvider) {
-        println "injectJarCost ${jarInput.name}"
 
+
+        if(methodBeatClass==null){
+            methodBeatClass = project.rootProject.projectDir.toString()+"/hapiaop/build/intermediates/javac/debug/classes/"
+        }
         //添加Android相关的类
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-
+        sClassPool.appendClassPath(methodBeatClass)
         def jarName = jarInput.name
         def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
 
@@ -59,32 +65,24 @@ class BeatInject {
 
                 jarOutputStream.putNextEntry(zipEntry)
                 //class文件处理
-                println "@@@@@@@@@@@@@@@@@@@@ deal with jar class file " + entryName
-
                 //entryName是class文件的全路径  把/替换成.  然后把后面的.class去掉
                 entryName = entryName.replace("/", ".").substring(0, entryName.length() - 6)
-
                 sClassPool.appendClassPath(jarInput.file.getAbsolutePath())
-                sClassPool.appendClassPath("/home/mjl/Downloads/aop/hapiaop/build/intermediates/javac/debug/classes/")
                 CtClass ctClass = sClassPool.getCtClass(entryName)
 
                 if (ctClass.isFrozen()) {
                     // 如果冻结就解冻
                     ctClass.defrost()
                 }
-
-                def  error = false
-
+                def error = false
                 ctClass.getDeclaredMethods().each { ctMethod ->
-
                     try {
-                        if(  !ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())){
+                        if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
                             def methodSign = ctMethod.getLongName().toString()
                             ctMethod.insertBefore("com.hapi.aop.MethodBeatMonitorJava.logS( \"${methodSign}\");")
                             ctMethod.insertAfter("com.hapi.aop.MethodBeatMonitorJava.logE( \"${methodSign}\");")
                         }
-                        println " ctMethod ${ctMethod.getLongName()} 成功"
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         error = true
                         println " ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
                     }
@@ -110,11 +108,13 @@ class BeatInject {
 
 
     static void injectCost(File baseClassPath, Project project) {
-        println "injectUtil ${baseClassPath.path}"
 
+        println "injectCost "+baseClassPath
         //添加Android相关的类
+        def  methodBeatClass = project.rootProject.projectDir.toString()+"/hapiaop/build/intermediates/javac/debug/classes/"
+        sClassPool.appendClassPath(methodBeatClass)
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-
+       println " methodBeatClass ${methodBeatClass}"
         if (baseClassPath.isDirectory()) {
             //遍历文件获取类
             baseClassPath.eachFileRecurse { classFile ->
@@ -134,13 +134,14 @@ class BeatInject {
     }
 
     static void injectSingleCost(File file, String baseClassPath, Project project) {
-        println "project.android.bootClasspath[0].toString()  ${project.android.bootClasspath[0].toString()}"
         //把类路径添加到classpool
-
         //添加Android相关的类
+        println "injectCost "+baseClassPath
+        def  methodBeatClass = project.rootProject.projectDir.toString()+"/hapiaop/build/intermediates/javac/debug/classes/"
+        sClassPool.appendClassPath(methodBeatClass)
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
         def classFile = file.path
-
+        println " methodBeatClass ${methodBeatClass}"
         if (check(file)) {
             println "injectSingleCost find class : ${classFile}"
 
@@ -161,7 +162,6 @@ class BeatInject {
 
         println "把类路径添加到classpool ${baseClassPath}  ${clazz}"
         sClassPool.appendClassPath(baseClassPath)
-        sClassPool.appendClassPath("/home/mjl/Downloads/aop/hapiaop/build/intermediates/javac/debug/classes/")
         try {
             def ctClass = sClassPool.get(clazz)
             //解冻
@@ -170,7 +170,7 @@ class BeatInject {
             }
             ctClass.getDeclaredMethods().each { ctMethod ->
                 println " ctMethod ${ctMethod.getLongName()}"
-                if(  !ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())){
+                if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
                     def methodSign = ctMethod.getLongName().toString()
                     ctMethod.insertBefore("com.hapi.aop.MethodBeatMonitorJava.logS( \"${methodSign}\");")
                     ctMethod.insertAfter("com.hapi.aop.MethodBeatMonitorJava.logE( \"${methodSign}\");")

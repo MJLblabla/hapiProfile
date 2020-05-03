@@ -9,10 +9,13 @@ import com.android.build.api.transform.TransformInput
 import com.android.build.api.transform.TransformInvocation
 import com.android.build.api.transform.TransformOutputProvider
 import com.android.build.gradle.internal.pipeline.TransformManager
+import com.android.ide.common.internal.WaitableExecutor
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
 import com.android.build.api.transform.Format
+
+import java.util.concurrent.Callable
 
 
 abstract class AbsTransForm extends Transform {
@@ -32,6 +35,8 @@ abstract class AbsTransForm extends Transform {
     boolean isIncremental() {
         return true
     }
+
+    private WaitableExecutor waitableExecutor = WaitableExecutor.useGlobalSharedThreadPool();
 
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
@@ -67,6 +72,7 @@ abstract class AbsTransForm extends Transform {
                 processDirectoryInputWithIncremental(directoryInput, outputProvider, isIncremental)
             }
         }
+        waitableExecutor.waitForTasksWithQuickFail(true);
     }
 
     void processJarInputWithIncremental(JarInput jarInput, TransformOutputProvider outputProvider, boolean isIncremental) {
@@ -83,7 +89,15 @@ abstract class AbsTransForm extends Transform {
                 case Status.ADDED:
                 case Status.CHANGED:
                     //处理有变化的
-                    transformJarInput(jarInput,outputProvider)
+                    waitableExecutor.execute(new Callable<Void>(){
+
+
+                        @Override
+                        Void call() {
+                            transformJarInput(jarInput,outputProvider)
+                            return null
+                        }
+                    })
                     break
                 case Status.REMOVED:
                     //移除Removed
@@ -95,28 +109,17 @@ abstract class AbsTransForm extends Transform {
 
         } else {
             //不处理增量编译
-            transformJarInput(jarInput,outputProvider)
+            waitableExecutor.execute(new Callable<Void>(){
+
+                @Override
+                Void call()  {
+                    transformJarInput(jarInput,outputProvider)
+                }
+            })
         }
     }
 
-    void processJarInput(JarInput jarInput, File dest) {
-        transformJarInput(jarInput, dest)
-    }
 
-    void processJarInputWhenIncremental(JarInput jarInput, File dest) {
-
-    }
-
-    void transformJarInputWhenIncremental(JarInput jarInput, File dest, Status status) {
-        if (status == Status.CHANGED) {
-            //Changed的状态需要先删除之前的
-            if (dest.exists()) {
-                FileUtils.forceDelete(dest)
-            }
-        }
-        //真正transform的地方
-        transformJarInput(jarInput, dest)
-    }
 
     abstract void transformJarInput(JarInput jarInput,TransformOutputProvider outputProvider)
 
@@ -124,11 +127,6 @@ abstract class AbsTransForm extends Transform {
 
     abstract void transformSingleFile(File inputFile, File destFile, String srcDirPath)
 
-    void transformJarInput(JarInput jarInput, File dest) {
-        transformJarInput(jarInput)
-        //将修改过的字节码copy到dest，就可以实现编译期间干预字节码的目的了
-        FileUtils.copyFile(jarInput.getFile(), dest)
-    }
 
     void processDirectoryInputWithIncremental(DirectoryInput directoryInput, TransformOutputProvider outputProvider, boolean isIncremental) {
         File dest = outputProvider.getContentLocation(
@@ -164,9 +162,16 @@ abstract class AbsTransForm extends Transform {
                     break
                 case Status.ADDED:
                 case Status.CHANGED:
-                    FileUtils.touch(destFile)
-                    transformSingleFile(inputFile, destFile, srcDirPath)
-                    FileUtils.copyFile(inputFile, destFile);
+                    waitableExecutor.execute(new Callable<Void>(){
+
+                        @Override
+                        Void call()  {
+                            FileUtils.touch(destFile)
+                            transformSingleFile(inputFile, destFile, srcDirPath)
+                            FileUtils.copyFile(inputFile, destFile);
+                        }
+                    })
+
                     break
             }
         }
@@ -177,9 +182,22 @@ abstract class AbsTransForm extends Transform {
     }
 
     void transformDirectoryInput(DirectoryInput directoryInput, File dest) {
-        transformDirectoryInput(directoryInput)
-        //将修改过的字节码copy到dest，就可以实现编译期间干预字节码的目的了
-        FileUtils.copyDirectory(directoryInput.getFile(), dest)
+        waitableExecutor.execute(new Callable<Void>(){
+/**
+ * Computes a result, or throws an exception if unable to do so.
+ *
+ * @return computed result
+ * @throws Exception if unable to compute a result
+ */
+
+            @Override
+            Void call()  {
+                transformDirectoryInput(directoryInput)
+                //将修改过的字节码copy到dest，就可以实现编译期间干预字节码的目的了
+                FileUtils.copyDirectory(directoryInput.getFile(), dest)
+            }
+        })
+
     }
 
 
