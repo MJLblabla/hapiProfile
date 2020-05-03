@@ -2,133 +2,94 @@ package com.hapi.aop
 
 import android.os.Looper
 import android.util.Log
-import com.alibaba.fastjson.JSON
-import kotlinx.coroutines.*
+import java.util.*
 
-object MethodBeatMonitor  {
+object MethodBeatMonitor {
 
     private final val Tag = "MethodBeatMonitor"
     /**
      * 过滤短耗时
      */
     private var minCostFilter = -1
-
-    var time = 0
-    private set
-
-    private var jobTime: Job? = null
-
     private val sMainThreadId = Looper.getMainLooper().thread.id
-    private var mMethodNode: MethodBeat? = null
-    private var mRootNode: MethodBeat? = null
-
-
-    private fun startTimer() {
-
-        time = 0
-        jobTime = GlobalScope.launch(Dispatchers.Default) {
-            time += 5
-            delay(5)
-        }
-    }
+    private val beatStack = Stack<MethodBeat>()
+    private val beatQueen = LinkedList<MethodBeat>()
 
     interface BeatLister {
         fun onBeatOnce()
     }
 
-    fun init() {
-        LooperMonitor.registerLoopListener(object : LooperMonitor.LoopListener {
+    fun dispatchMsgStart(){
 
-            override fun dispatchMsgStart() {
-                startTimer()
-            }
-
-            override fun dispatchMsgStop() {
-                jobTime?.cancel()
-                jobTime=null
-            }
-        }, true, true)
+        beatQueen.clear()
+        beatStack.clear()
     }
 
     fun logS(methodSign: String) {
-        Log.d(Tag,"logS ${methodSign}")
+
         if (Thread.currentThread().id != sMainThreadId) {
             return
         }
-        if(jobTime==null){
+        if (!LoopTimer.isStart) {
             return
         }
-        val beat = MethodBeat(methodSign, -1, mMethodNode)
-        if(mRootNode==null){
-            mRootNode=beat
-        }
-        if(mMethodNode==null){
-            mMethodNode=beat
-        }else{
-            if(mMethodNode!!.cost>=0){
-                mMethodNode!!.parent?.zChild?.add(beat)
-            }else{
-                mMethodNode!!.zChild.add(beat)
-            }
-            mMethodNode=beat
-        }
-        mMethodNode?.startTime = time
+
+        val beat = MethodBeat(methodSign)
+        beat.startTime = LoopTimer.time
+        beatStack.push(beat)
     }
 
     fun logE(methodSign: String) {
-        Log.d(Tag,"logE ${methodSign}")
+
         if (Thread.currentThread().id != sMainThreadId) {
             return
         }
-        if(mMethodNode==null){
+        if (beatStack.isEmpty()) {
             return
         }
-        val cost = time - mMethodNode!!.startTime
-        mMethodNode?.cost=cost
-        if(cost> minCostFilter){
+        val node = beatStack.pop()
 
+        if(node.methodSign==methodSign){
+            val cost = LoopTimer.time - node.startTime
+            node.cost = cost
+
+            if (cost > minCostFilter) {
+                beatQueen.addFirst(node)
+            }
         }else{
-            val parent = mMethodNode?.parent
-            mMethodNode?.parent?.zChild?.remove(mMethodNode!!)
-            mMethodNode?.parent=null
-
-            mMethodNode=parent
+            Log.d(Tag," iterator" + methodSign)
         }
-//        if (mMethodBeatsTemp.isEmpty()) {
-//          return
-//        }
-//
-//        val lastBeat = mMethodBeatsTemp.last
-//        val cost = time - lastBeat.startTime
-//        val isEndForLast = lastBeat.methodSign == methodSign
-//        if (isEndForLast && cost < minCostFilter) {
-//            mMethodBeatsTemp.removeLast()
-//        } else {
-//            val temp = MethodBeatTemp(methodSign, time)
-//            mMethodBeatsTemp.add(temp)
-//
-//            if (mMethodNode == null) {
-//                mMethodNode = MethodBeat(methodSign, cost)
-//                mRootNode = mMethodNode
-//            } else {
-//                val beat = MethodBeat(methodSign, cost, mMethodNode)
-//                if (isEndForLast) {
-//                    mMethodNode!!.child.add(beat)
-//                } else {
-//                    mMethodNode!!.parent?.child?.add(beat)
-//                }
-//                mMethodNode = beat
-//            }
-//        }
+
     }
 
 
+    fun issue(): LinkedList<MethodBeat> {
 
-    fun issue(){
-        Log.d(Tag,"logS issue")
-        mRootNode?.let {
-            Log.d(Tag,   JSON.toJSONString(it))
-            JSON.toJSON(it)
+        beatQueen.sortWith(Comparator { o1, o2 -> o2.cost - o1.cost })
+
+        var methodName = ""
+        var cost =0
+        val iterator = beatQueen.iterator()
+        while (iterator.hasNext()){
+            val it = iterator.next()
+            val itemMethodNameArray = it.methodSign?.split(".")
+            val name = itemMethodNameArray!![itemMethodNameArray.size-1]
+            if(name==methodName&&it.cost==cost){
+                iterator.remove()
+                if(methodName=="onCreate"){
+                    Log.d(Tag," iterator.remove()" + it.methodSign)
+                }
+            }
+            methodName=name
+            cost=it.cost
         }
+
+        beatQueen.forEachIndexed { index, methodBeat ->
+            if (index > 30) {
+                return@forEachIndexed
+            }
+            Log.d(Tag, "top  ${index}  ${methodBeat.methodSign}  cost ${methodBeat.cost}")
+        }
+        return beatQueen
     }
 }

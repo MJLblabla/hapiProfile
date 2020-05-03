@@ -2,6 +2,7 @@ package com.hapi.hapiplugin
 
 import com.android.build.api.transform.DirectoryInput
 import com.android.build.api.transform.JarInput
+import com.android.build.api.transform.TransformOutputProvider
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
@@ -16,8 +17,8 @@ class MethodBeatTransForm extends AbsTransForm{
 
     }
     @Override
-    void transformJarInput(JarInput jarInput) {
-        BeatInject.injectCost(jarInput.file,mProject)
+    void transformJarInput(JarInput jarInput, TransformOutputProvider outputProvider) {
+        BeatInject.injectJarCost(jarInput,mProject,outputProvider)
     }
 
     @Override

@@ -7,13 +7,18 @@ public class S {
     public void a(){
         //com.hapi.aoptest.MethodBeatMonitorJav.logS("aa");
         a1();
-        a2();
+
     }
     public void b(){
         b1();
         //com.hapi.aoptest.MethodBeatMonitorJav.logS("aa");
     }
     public void b1(){
+        try {
+            Thread.sleep(40);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         //com.hapi.aoptest.MethodBeatMonitorJav.logS("aa");
     }
     public void c(){

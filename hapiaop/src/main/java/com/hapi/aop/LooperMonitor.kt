@@ -16,13 +16,9 @@ object LooperMonitor : IMonitor {
 
     private var mLoopListeners = LinkedList<LoopListener>()
 
-    fun registerLoopListener(loopListener: LoopListener, register: Boolean,registAtHeader:Boolean=false) {
+    fun registerLoopListener(loopListener: LoopListener, register: Boolean) {
         if (register) {
-            if(registAtHeader){
-                mLoopListeners.addFirst(loopListener)
-            }else{
-                mLoopListeners.add(loopListener)
-            }
+            mLoopListeners.add(loopListener)
         } else {
             mLoopListeners.remove(loopListener)
         }
@@ -53,11 +49,15 @@ object LooperMonitor : IMonitor {
         if (!isStart) {
             return
         }
+
         if (isBegin) {
+            LoopTimer.startTimer()
+            MethodBeatMonitor.dispatchMsgStart()
             mLoopListeners.forEach {
                 it.dispatchMsgStart()
             }
         } else {
+            LoopTimer.stop()
             mLoopListeners.forEach {
                 it.dispatchMsgStop()
             }

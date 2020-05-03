@@ -50,10 +50,9 @@ abstract class AbsTransForm extends Transform {
         transformInvocation.getInputs().each { TransformInput input ->
             input.jarInputs.each { JarInput jarInput ->
                 //处理Jar
-                processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
-//
-//                //不处理jar文件
-//                    // 重命名输出文件（同目录copyFile会冲突）
+              processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
+           //     不处理jar文件
+                    // 重命名输出文件（同目录copyFile会冲突）
 //                    def jarName = jarInput.name
 //                    def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
 //                    if (jarName.endsWith(".jar")) {
@@ -78,10 +77,25 @@ abstract class AbsTransForm extends Transform {
                 Format.JAR)
         if (isIncremental) {
             //处理增量编译
-            processJarInputWhenIncremental(jarInput, dest)
+            switch (jarInput.status) {
+                case Status.NOTCHANGED:
+                    break
+                case Status.ADDED:
+                case Status.CHANGED:
+                    //处理有变化的
+                    transformJarInput(jarInput,outputProvider)
+                    break
+                case Status.REMOVED:
+                    //移除Removed
+                    if (dest.exists()) {
+                        FileUtils.forceDelete(dest)
+                    }
+                    break
+            }
+
         } else {
             //不处理增量编译
-            processJarInput(jarInput, dest)
+            transformJarInput(jarInput,outputProvider)
         }
     }
 
@@ -90,21 +104,7 @@ abstract class AbsTransForm extends Transform {
     }
 
     void processJarInputWhenIncremental(JarInput jarInput, File dest) {
-        switch (jarInput.status) {
-            case Status.NOTCHANGED:
-                break
-            case Status.ADDED:
-            case Status.CHANGED:
-                //处理有变化的
-                transformJarInputWhenIncremental(jarInput, dest, jarInput.status)
-                break
-            case Status.REMOVED:
-                //移除Removed
-                if (dest.exists()) {
-                    FileUtils.forceDelete(dest)
-                }
-                break
-        }
+
     }
 
     void transformJarInputWhenIncremental(JarInput jarInput, File dest, Status status) {
@@ -118,7 +118,7 @@ abstract class AbsTransForm extends Transform {
         transformJarInput(jarInput, dest)
     }
 
-    abstract void transformJarInput(JarInput jarInput)
+    abstract void transformJarInput(JarInput jarInput,TransformOutputProvider outputProvider)
 
     abstract void transformDirectoryInput(DirectoryInput directoryInput)
 
