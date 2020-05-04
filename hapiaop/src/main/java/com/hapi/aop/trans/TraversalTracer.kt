@@ -50,7 +50,6 @@ class TraversalTracer :ITracer(){
             isTraversal = false
             if(isStart){
                 val timeSpan = LoopTimer.time - startTime
-                Log.d(TAG,"单帧耗时 ${timeSpan}" )
                 if(timeSpan >  HapiMonitorPlugin.mMonitorConfig.frameCostIssues){
                     MethodBeatMonitor.issue("单帧耗时过大 ${timeSpan}")
                 }

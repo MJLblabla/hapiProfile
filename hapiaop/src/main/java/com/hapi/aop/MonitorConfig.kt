@@ -1,6 +1,7 @@
 package com.hapi.aop
 
 import android.util.Log
+import com.hapi.aop.ui.NotificationIssure
 
 class MonitorConfig {
     /**
@@ -22,6 +23,7 @@ class MonitorConfig {
                     "${issure.cpuRate}"
 
             )
+            NotificationIssure.send(issure)
             issure.methodBeats?.forEachIndexed { index, methodBeat ->
                 Log.d("IssureCallBack", "top  ${index}  ${methodBeat.sign}  cost ${methodBeat.cost}")
             }
