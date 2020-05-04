@@ -13,7 +13,15 @@ class HapiAppMonitorPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def android = project.extensions.getByType(AppExtension)
-        android.registerTransform(new MethodBeatTransForm(project), Collections.EMPTY_LIST)
+
+        project.extensions.create("hapi", Hapi)
+
+
+            def android = project.extensions.getByType(AppExtension)
+            android.registerTransform(new MethodBeatTransForm(project), Collections.EMPTY_LIST)
+
+
     }
+
+
 }

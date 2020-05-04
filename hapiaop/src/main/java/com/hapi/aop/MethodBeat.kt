@@ -1,7 +1,6 @@
 package com.hapi.aop
 
 import android.view.ViewParent
-import com.alibaba.fastjson.annotation.JSONField
 
 class MethodBeat {
 
@@ -16,9 +15,6 @@ class MethodBeat {
     var methodSign: String? = ""
     var cost: Int = 0
 
-
-
-    @JSONField(serialize = false)
     var startTime = 0
 
 

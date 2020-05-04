@@ -38,25 +38,28 @@ abstract class AbsTransForm extends Transform {
 
     private WaitableExecutor waitableExecutor = WaitableExecutor.useGlobalSharedThreadPool();
 
+    abstract boolean  needTransform()
+
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         super.transform(transformInvocation)
 
-        boolean isIncremental = transformInvocation.isIncremental()
+        if(needTransform()){
+            boolean isIncremental = transformInvocation.isIncremental()
 
-        //OutputProvider管理输出路径，如果消费型输入为空，你会发现OutputProvider == null
-        TransformOutputProvider outputProvider = transformInvocation.getOutputProvider()
+            //OutputProvider管理输出路径，如果消费型输入为空，你会发现OutputProvider == null
+            TransformOutputProvider outputProvider = transformInvocation.getOutputProvider()
 
-        if (!isIncremental) {
-            //不需要增量编译，先清除全部
-            outputProvider.deleteAll()
-        }
+            if (!isIncremental) {
+                //不需要增量编译，先清除全部
+                outputProvider.deleteAll()
+            }
 
-        transformInvocation.getInputs().each { TransformInput input ->
-            input.jarInputs.each { JarInput jarInput ->
-                //处理Jar
-              processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
-           //     不处理jar文件
+            transformInvocation.getInputs().each { TransformInput input ->
+                input.jarInputs.each { JarInput jarInput ->
+                    //处理Jar
+                    processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
+                    //     不处理jar文件
                     // 重命名输出文件（同目录copyFile会冲突）
 //                    def jarName = jarInput.name
 //                    def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
@@ -65,14 +68,44 @@ abstract class AbsTransForm extends Transform {
 //                    }
 //                    def dest = transformInvocation.outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
 //                    FileUtils.copyFile(jarInput.file, dest)
-            }
+                }
 
-            input.directoryInputs.each { DirectoryInput directoryInput ->
-                //处理文件
-                processDirectoryInputWithIncremental(directoryInput, outputProvider, isIncremental)
+                input.directoryInputs.each { DirectoryInput directoryInput ->
+                    //处理文件
+                    processDirectoryInputWithIncremental(directoryInput, outputProvider, isIncremental)
+                }
+            }
+            waitableExecutor.waitForTasksWithQuickFail(true);
+        }else {
+
+            boolean isIncremental = transformInvocation.isIncremental();
+            //消费型输入，可以从中获取jar包和class文件夹路径。需要输出给下一个任务
+            Collection<TransformInput> inputs = transformInvocation.getInputs();
+            //引用型输入，无需输出。
+            Collection<TransformInput> referencedInputs = transformInvocation.getReferencedInputs();
+            //OutputProvider管理输出路径，如果消费型输入为空，你会发现OutputProvider == null
+            TransformOutputProvider outputProvider = transformInvocation.getOutputProvider();
+            for(TransformInput input : inputs) {
+                for(JarInput jarInput : input.getJarInputs()) {
+                    File dest = outputProvider.getContentLocation(
+                            jarInput.getFile().getAbsolutePath(),
+                            jarInput.getContentTypes(),
+                            jarInput.getScopes(),
+                            Format.JAR);
+                    //将修改过的字节码copy到dest，就可以实现编译期间干预字节码的目的了
+                    FileUtils.copyFile(jarInput.getFile(), dest);
+                }
+                for(DirectoryInput directoryInput : input.getDirectoryInputs()) {
+                    File dest = outputProvider.getContentLocation(directoryInput.getName(),
+                            directoryInput.getContentTypes(), directoryInput.getScopes(),
+                            Format.DIRECTORY);
+                    //将修改过的字节码copy到dest，就可以实现编译期间干预字节码的目的了
+                    FileUtils.copyDirectory(directoryInput.getFile(), dest);
+                }
             }
         }
-        waitableExecutor.waitForTasksWithQuickFail(true);
+
+
     }
 
     void processJarInputWithIncremental(JarInput jarInput, TransformOutputProvider outputProvider, boolean isIncremental) {

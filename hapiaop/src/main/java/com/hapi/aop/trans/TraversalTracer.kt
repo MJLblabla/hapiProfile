@@ -3,17 +3,18 @@ package com.hapi.aop.trans
 import android.os.SystemClock
 import android.util.Log
 import android.view.Choreographer
+import com.hapi.aop.HapiMonitorPlugin
 import com.hapi.aop.LoopTimer
-import com.hapi.aop.LooperMonitor
+import com.hapi.aop.MethodBeatMonitor
 import com.hapi.aop.util.MatrixLog
 import java.lang.reflect.Method
 
-object TraversalTracer :ITracer(){
+class TraversalTracer :ITracer(){
 
     private val TAG = "TraselTracer"
     private var lastframeTimeNanos = -1L
 
-    val CALLBACK_TRAVERSAL = 2
+    private val CALLBACK_TRAVERSAL = 2
     private val ADD_CALLBACK = "addCallbackLocked"
     private var frameIntervalNanos: Long = 16666666
     private var callbackQueueLock: Any? = null
@@ -23,7 +24,6 @@ object TraversalTracer :ITracer(){
 
     private var startTime = 0
 
-    private var frameCostIssues:Int = 20
 
     init {
       //  callbackQueueLock = reflectObject<Any>(choreographer, "mLock")
@@ -51,8 +51,8 @@ object TraversalTracer :ITracer(){
             if(isStart){
                 val timeSpan = LoopTimer.time - startTime
                 Log.d(TAG,"单帧耗时 ${timeSpan}" )
-                if(timeSpan > frameCostIssues){
-                    // Log.d(TAG,"单帧耗时过大 ${timeSpan}" )
+                if(timeSpan >  HapiMonitorPlugin.mMonitorConfig.frameCostIssues){
+                    MethodBeatMonitor.issue("单帧耗时过大 ${timeSpan}")
                 }
                 addCallbackQueues()
             }

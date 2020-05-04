@@ -3,7 +3,7 @@ package com.hapi.aop.trans
 import android.util.Log
 import android.view.Choreographer
 
-object FpsTracer : ITracer(false){
+class FpsTracer : ITracer(false){
 
     private val TAG="FpsTracer"
     private val choreographer = Choreographer.getInstance()
