@@ -91,6 +91,8 @@ class BeatInject {
         def dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
         FileUtils.copyFile(tmpFile, dest)
         tmpFile.delete()
+
+
     }
 
     private static void initMethod(CtClass ctClass,String entryName) {

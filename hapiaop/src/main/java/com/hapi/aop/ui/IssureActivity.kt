@@ -1,11 +1,12 @@
 package com.hapi.aop.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.hapi.aop.Issure
 import com.hapi.aop.R
 import kotlinx.android.synthetic.main.activity_issure.*
+import java.text.DecimalFormat
+
 
 class IssureActivity : AppCompatActivity() {
 
@@ -14,9 +15,11 @@ class IssureActivity : AppCompatActivity() {
         setContentView(R.layout.activity_issure)
         val issure = intent.getParcelableExtra<Issure>("issure")
         issure?.let {
-            val msg = "msg  ${issure.msg}  availMemory ${issure.availMemory} " +
-                    "totalMemory ${issure.totalMemory}   foregroundPageName  ${issure.foregroundPageName}  cpuRate" +
-                    "${issure.cpuRate} \n"
+            val msg = "msg  ${issure.msg}  " +
+                    "\n availMemory ${issure.availMemory} " +
+                    " \n totalMemory ${issure.totalMemory} " +
+                    "\n foregroundPageName  ${issure.foregroundPageName}" +
+                    "  cpuRate ${issure.cpuRate} \n\n"
             val sb = StringBuffer()
             sb.append(msg)
             issure.methodBeats?.forEachIndexed { index, methodBeat ->

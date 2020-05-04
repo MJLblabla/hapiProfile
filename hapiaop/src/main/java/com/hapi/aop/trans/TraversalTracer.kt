@@ -70,7 +70,6 @@ class TraversalTracer :ITracer(){
 
     private val callback = Runnable {
         isTraversal = true
-        Log.d(TAG,"traversal")
     }
 
     private fun addCallbackQueues(){
@@ -89,7 +88,6 @@ class TraversalTracer :ITracer(){
             return field[instance] as T
         } catch (e: Exception) {
             e.printStackTrace()
-            MatrixLog.e(TAG, e.toString())
         }
         return null
     }
@@ -106,7 +104,7 @@ class TraversalTracer :ITracer(){
             method.isAccessible = true
             return method
         } catch (e: Exception) {
-            MatrixLog.e(TAG, e.toString())
+           e.printStackTrace()
         }
         return null
     }

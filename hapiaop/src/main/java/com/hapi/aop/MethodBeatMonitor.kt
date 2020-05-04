@@ -78,7 +78,7 @@ object MethodBeatMonitor {
 
             val issure = Issure()
             issure.msg = msg
-            issure.availMemory = DeviceUtil.getAvailMemory(HapiMonitorPlugin.context)
+            issure.availMemory = DeviceUtil.getMemFree(HapiMonitorPlugin.context)
             issure.totalMemory = DeviceUtil.getTotalMemory(HapiMonitorPlugin.context)
             issure.cpuRate = DeviceUtil.getAppCpuRate()
             issure.foregroundPageName = ActivityCollection.currentActivity?.localClassName
