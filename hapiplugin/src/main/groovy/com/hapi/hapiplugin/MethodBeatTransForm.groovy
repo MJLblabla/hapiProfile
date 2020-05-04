@@ -50,6 +50,9 @@ class MethodBeatTransForm extends AbsTransForm{
         def  isOpen = hapi.isOpen
         println("hapi ${hapi.isOpen} ${hapi.msg} ")
         mProject.build
+        String black = hapi.blackList
+        BeatInject.blackList = black.split(",")
+        println "blackList  ${black.toString()}"
         return isOpen && !isReleaseBuildType()
     }
 

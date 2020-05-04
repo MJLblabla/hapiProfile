@@ -23,7 +23,7 @@ class MonitorConfig {
 
             )
             issure.methodBeats?.forEachIndexed { index, methodBeat ->
-                Log.d("IssureCallBack", "top  ${index}  ${methodBeat.methodSign}  cost ${methodBeat.cost}")
+                Log.d("IssureCallBack", "top  ${index}  ${methodBeat.sign}  cost ${methodBeat.cost}")
             }
         }
 

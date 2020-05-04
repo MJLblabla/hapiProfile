@@ -24,15 +24,15 @@ class BeatInject {
 
 
     static final ClassPool sClassPool = ClassPool.getDefault();
-    static def  methodBeatClass = null
-
+    static def methodBeatClass = null
+    static def blackList = []
 
 
     static void injectJarCost(JarInput jarInput, Project project, TransformOutputProvider outputProvider) {
 
 
-        if(methodBeatClass==null){
-            methodBeatClass = project.rootProject.projectDir.toString()+"/hapiaop/build/intermediates/javac/debug/classes/"
+        if (methodBeatClass == null) {
+            methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
         }
         //添加Android相关的类
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
@@ -74,20 +74,7 @@ class BeatInject {
                     // 如果冻结就解冻
                     ctClass.defrost()
                 }
-                def error = false
-                ctClass.getDeclaredMethods().each { ctMethod ->
-                    try {
-                        if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
-                            def methodSign = ctMethod.getLongName().toString()
-                            ctMethod.insertBefore("com.hapi.aop.MethodBeatMonitorJava.logS( \"${methodSign}\");")
-                            ctMethod.insertAfter("com.hapi.aop.MethodBeatMonitorJava.logE( \"${methodSign}\");")
-                        }
-                    } catch (Exception e) {
-                        error = true
-                        println " ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
-                    }
-
-                }
+                initMethod(ctClass,entryName)
                 jarOutputStream.write(ctClass.toBytecode())
 
             } else {
@@ -106,15 +93,43 @@ class BeatInject {
         tmpFile.delete()
     }
 
+    private static void initMethod(CtClass ctClass,String entryName) {
+        ctClass.getDeclaredMethods().each { ctMethod ->
+            try {
+                if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
+                    def methodSign = ctMethod.getLongName().toString()
+                    ctMethod.addLocalVariable("needBeat", CtClass.booleanType);
+                    ctMethod.addLocalVariable("costStartTime", CtClass.longType);
+                    ctMethod.addLocalVariable("diff", CtClass.intType);
+                    ctMethod.insertBefore("" +
+                            "  needBeat=com.hapi.aop.MethodBeatMonitorJava.checkDeep();" +
+                            "         costStartTime =  com.hapi.aop.MethodBeatMonitorJava.getTime();" +
+                            "")
+                    ctMethod.insertAfter("" +
+                            "  diff = (int) (com.hapi.aop.MethodBeatMonitorJava.getTime()-costStartTime);" +
+                            "        if(needBeat && diff>com.hapi.aop.MethodBeatMonitorJava.getMinCostFilter()){" +
+                            "            com.hapi.aop.MethodBeatMonitorJava.addBeat(new com.hapi.aop.Beat(diff,\"${methodSign}\"));" +
+                            "        }" +
+                            "")
+                }
+            } catch (Exception e) {
+               // e.printStackTrace()
+                println "entryName ${entryName} ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
+            }
+
+        }
+
+    }
+
 
     static void injectCost(File baseClassPath, Project project) {
 
-        println "injectCost "+baseClassPath
+        println "injectCost " + baseClassPath
         //添加Android相关的类
-        def  methodBeatClass = project.rootProject.projectDir.toString()+"/hapiaop/build/intermediates/javac/debug/classes/"
+        def methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
         sClassPool.appendClassPath(methodBeatClass)
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-       println " methodBeatClass ${methodBeatClass}"
+        println " methodBeatClass ${methodBeatClass}"
         if (baseClassPath.isDirectory()) {
             //遍历文件获取类
             baseClassPath.eachFileRecurse { classFile ->
@@ -136,8 +151,8 @@ class BeatInject {
     static void injectSingleCost(File file, String baseClassPath, Project project) {
         //把类路径添加到classpool
         //添加Android相关的类
-        println "injectCost "+baseClassPath
-        def  methodBeatClass = project.rootProject.projectDir.toString()+"/hapiaop/build/intermediates/javac/debug/classes/"
+        println "injectCost " + baseClassPath
+        def methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
         sClassPool.appendClassPath(methodBeatClass)
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
         def classFile = file.path
@@ -168,15 +183,16 @@ class BeatInject {
             if (ctClass.isFrozen()) {
                 ctClass.defrost()
             }
-            ctClass.getDeclaredMethods().each { ctMethod ->
-                println " ctMethod ${ctMethod.getLongName()}"
-                if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
-                    def methodSign = ctMethod.getLongName().toString()
-                    ctMethod.insertBefore("com.hapi.aop.MethodBeatMonitorJava.logS( \"${methodSign}\");")
-                    ctMethod.insertAfter("com.hapi.aop.MethodBeatMonitorJava.logE( \"${methodSign}\");")
-                }
-
-            }
+//            ctClass.getDeclaredMethods().each { ctMethod ->
+//                println " ctMethod ${ctMethod.getLongName()}"
+//                if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
+//                    def methodSign = ctMethod.getLongName().toString()
+//                    ctMethod.insertBefore("com.hapi.aop.MethodBeatMonitorJava.logS( \"${methodSign}\");")
+//                    ctMethod.insertAfter("com.hapi.aop.MethodBeatMonitorJava.logE( \"${methodSign}\");")
+//                }
+//
+//            }
+            initMethod(ctClass,clazz)
             ctClass.writeFile(baseClassPath)
             ctClass.detach()//释放
         } catch (Exception e) {
@@ -236,6 +252,12 @@ class BeatInject {
     //过滤掉一些生成的类
     private static boolean checkStr(String filePath) {
 
+        blackList.each{ it ->
+
+            if(filePath.contains(it)){
+                return false
+            }
+        }
 
         return filePath.contains('.class') && !filePath.contains('R$') &&
                 !filePath.contains('R.class') &&

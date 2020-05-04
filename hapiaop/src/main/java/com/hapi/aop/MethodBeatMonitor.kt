@@ -1,8 +1,11 @@
 package com.hapi.aop
 
 import android.os.Looper
-import android.util.Log
 import com.hapi.aop.util.DeviceUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.*
 
 object MethodBeatMonitor {
@@ -12,102 +15,86 @@ object MethodBeatMonitor {
     /**
      * 过滤短耗时
      */
-    private var minCostFilter = 5
+    var minCostFilter = 5
+    var methodDeep =0
+    var maxDeep=100000;
+    var issureTop = 30
 
     private val sMainThreadId = Looper.getMainLooper().thread.id
-    private val beatStack = Stack<MethodBeat>()
-    private val beatQueen = LinkedList<MethodBeat>()
 
-    interface BeatLister {
-        fun onBeatOnce()
-    }
 
     fun dispatchMsgStart() {
-
-        beatQueen.clear()
-        beatStack.clear()
+        methodDeep=0
+        beats.clear()
     }
 
-    fun logS(methodSign: String) {
+
+    private val beats = LinkedList<Beat>()
+
+    fun checkDeep():Boolean{
 
         if (Thread.currentThread().id != sMainThreadId) {
-            return
+            return false
         }
         if (!LoopTimer.isStart) {
-            return
+            return false
         }
-
-        val beat = MethodBeat(methodSign)
-        beat.startTime = LoopTimer.time
-        beatStack.push(beat)
+        return  methodDeep< maxDeep;
+    }
+    fun addBeat(beat: Beat){
+        methodDeep++
+         beats.addFirst(beat)
     }
 
-    fun logE(methodSign: String) {
 
 
-        if (Thread.currentThread().id != sMainThreadId) {
-            return
-        }
-        if (beatStack.isEmpty()) {
-            return
-        }
 
-        var node = beatStack.pop()
-
-        if (node.methodSign != methodSign&& !beatStack.isEmpty()) {
-            while (!beatStack.isEmpty()){
-                node = beatStack.pop()
-                if(node.methodSign == methodSign){
-                    break
-                }
-            }
-        }
-        if(node.methodSign==methodSign){
-            val cost = LoopTimer.time - node.startTime
-            node.cost = cost
-
-            if (cost > minCostFilter) {
-                beatQueen.addFirst(node)
-            }
-        }
-    }
 
 
     fun issue(msg: String = "") {
-        beatQueen.sortWith(Comparator { o1, o2 -> o2.cost - o1.cost })
 
-        var methodName = ""
-        var cost = 0
-        val iterator = beatQueen.iterator()
-        while (iterator.hasNext()) {
-            val it = iterator.next()
-            val itemMethodNameArray = it.methodSign?.split(".")
-            val name = itemMethodNameArray!![itemMethodNameArray.size - 1]
-            if (name == methodName && it.cost == cost) {
-                iterator.remove()
+        GlobalScope.launch(Dispatchers.IO) {
+           val res= async {
+                beats.sortWith(Comparator { o1, o2 -> o2.cost - o1.cost })
+
+                var methodName = ""
+                var cost = 0
+                val iterator = beats.iterator()
+                val beatTemp =   LinkedList<Beat>();
+                while (iterator.hasNext()) {
+                    val it = iterator.next()
+                    val itemMethodNameArray = it.sign?.split(".")
+                    val name = itemMethodNameArray!![itemMethodNameArray.size - 1]
+                    if (name == methodName && it.cost == cost) {
+                        iterator.remove()
+                    }else{
+                        beatTemp.add(it)
+                        if(beatTemp.size>issureTop){
+                            break
+                        }
+                    }
+                    methodName = name
+                    cost = it.cost
+                }
+                beatTemp
             }
-            methodName = name
-            cost = it.cost
-        }
+            HapiMonitorPlugin.mMonitorConfig.issureCallBack?.let {
 
-        beatQueen.forEachIndexed { index, methodBeat ->
-            if (index > 30) {
-                return@forEachIndexed
+                val issure = Issure()
+                issure.msg = msg
+                issure.availMemory = DeviceUtil.getAvailMemory(HapiMonitorPlugin.context)
+                issure.totalMemory = DeviceUtil.getTotalMemory(HapiMonitorPlugin.context)
+                issure.cpuRate = DeviceUtil.getAppCpuRate()
+                issure.foregroundPageName = ActivityCollection.currentActivity?.localClassName
+                issure.methodBeats = res.await()
+                it.onIssure(issure)
             }
         }
 
-        HapiMonitorPlugin.mMonitorConfig.issureCallBack?.let {
 
-            val issure = Issure()
-            issure.msg = msg
-            issure.availMemory = DeviceUtil.getAvailMemory(HapiMonitorPlugin.context)
-            issure.totalMemory = DeviceUtil.getTotalMemory(HapiMonitorPlugin.context)
-            issure.cpuRate = DeviceUtil.getAppCpuRate()
-            issure.foregroundPageName = ActivityCollection.currentActivity?.localClassName
-            issure.methodBeats = beatQueen
 
-            it.onIssure(issure)
-        }
+
+
 
     }
 

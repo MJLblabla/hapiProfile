@@ -2,10 +2,19 @@ package com.hapi.aop;
 
 public class MethodBeatMonitorJava {
 
-  public   static void logS(String methodSign){
-        MethodBeatMonitor.INSTANCE.logS(methodSign);
+
+    public static boolean checkDeep(){
+        return MethodBeatMonitor.INSTANCE.checkDeep();
     }
- public    static void logE(String methodSign){
-        MethodBeatMonitor.INSTANCE.logE(methodSign);
+    public static void addBeat(Beat beat){
+        MethodBeatMonitor.INSTANCE.addBeat(beat);
     }
+    public static int getTime(){
+        return LoopTimer.INSTANCE.getTime();
+    }
+    public static int getMinCostFilter(){
+        return MethodBeatMonitor.INSTANCE.getMinCostFilter();
+    }
+
+
 }

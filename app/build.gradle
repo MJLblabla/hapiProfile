@@ -5,6 +5,7 @@ apply plugin: 'com.hapi.hapiplugin'
 
 hapi{
     isOpen true
+    blackList  "androidx/core/graphics"
 }
 
 

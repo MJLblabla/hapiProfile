@@ -30,5 +30,5 @@ public class Issure {
     /**
      * 函数调用链
      */
-    public List<MethodBeat> methodBeats;
+    public List<Beat> methodBeats;
 }
