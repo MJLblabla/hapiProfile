@@ -7,7 +7,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
+import com.hapi.aop.ActivityCollection;
 import com.hapi.aop.HapiMonitorPlugin;
 import com.hapi.aop.Issure;
 import com.hapi.aop.R;
@@ -17,20 +19,28 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class NotificationIssure {
 
     private static int id=1;
+
     public static void send(final Issure issure){
         Context context = HapiMonitorPlugin.INSTANCE.getContext().getApplicationContext();
-        Intent intent = new Intent(context, IssureActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent intent ;
+        id++;
+        if(ActivityCollection.INSTANCE.getCurrentActivity()!=null){
+            intent = new Intent(ActivityCollection.INSTANCE.getCurrentActivity(), IssureActivity.class);
+        }else {
+            intent = new Intent(context, IssureActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+
         intent.putExtra("issure",issure);
         PendingIntent pendingIntent = PendingIntent.getActivity(
-                context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
 // 1. 创建一个通知(必须设置channelId)
 
-            String channelId = "ChannelId"; // 通知渠道
+            String channelId = "ChannelId"+id; // 通知渠道
             Notification notification = new Notification.Builder(context)
                     .setChannelId(channelId)
                      .setSmallIcon(R.drawable.block)
@@ -47,7 +57,8 @@ public class NotificationIssure {
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
 // 3. 发送通知(Notification与NotificationManager的channelId必须对应)
-            notificationManager.notify(id++, notification);
+            Log.d("NotificationIssure","id "+id);
+            notificationManager.notify(id, notification);
         }else {
 // 创建通知(标题、内容、图标)
             Notification notification = new Notification.Builder(context)
@@ -60,7 +71,7 @@ public class NotificationIssure {
             NotificationManager manager = (NotificationManager) context
                     .getSystemService(Context.NOTIFICATION_SERVICE);
 // 发送通知
-            manager.notify(id++, notification);
+            manager.notify(id, notification);
         }
     }
 }

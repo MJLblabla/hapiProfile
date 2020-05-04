@@ -51,16 +51,15 @@ object LooperMonitor : IMonitor {
         }
 
         if (isBegin) {
-            LoopTimer.startTimer()
             MethodBeatMonitor.dispatchMsgStart()
             mLoopListeners.forEach {
                 it.dispatchMsgStart()
             }
         } else {
-            LoopTimer.stop()
             mLoopListeners.forEach {
                 it.dispatchMsgStop()
             }
+            LoopTimer.reset()
         }
     }
 

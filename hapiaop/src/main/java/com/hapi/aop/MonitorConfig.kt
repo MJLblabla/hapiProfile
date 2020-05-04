@@ -11,7 +11,7 @@ class MonitorConfig {
     /**
      * 主线程耗时卡顿
      */
-    var blockCostIssue = 2000
+    var blockCostIssue = 1700
 
     /**
      * 回调 （默认回调 log

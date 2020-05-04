@@ -195,16 +195,18 @@ abstract class AbsTransForm extends Transform {
                     break
                 case Status.ADDED:
                 case Status.CHANGED:
-                    waitableExecutor.execute(new Callable<Void>(){
-
-                        @Override
-                        Void call()  {
-                            FileUtils.touch(destFile)
-                            transformSingleFile(inputFile, destFile, srcDirPath)
-                            FileUtils.copyFile(inputFile, destFile);
-                        }
-                    })
-
+//                    this.waitableExecutor.execute(new Callable<Void>(){
+//
+//                        @Override
+//                        Void call()  {
+//                            FileUtils.touch(destFile)
+//                            transformSingleFile(inputFile, destFile, srcDirPath)
+//                            FileUtils.copyFile(inputFile, destFile);
+//                        }
+//                    })
+                    FileUtils.touch(destFile)
+                    transformSingleFile(inputFile, destFile, srcDirPath)
+                    FileUtils.copyFile(inputFile, destFile);
                     break
             }
         }

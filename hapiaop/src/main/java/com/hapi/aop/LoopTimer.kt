@@ -11,16 +11,26 @@ object LoopTimer {
 
     fun addTimerObsever(){
         timerObsever++
+        if(timerObsever==1){
+            startTimer()
+        }
     }
 
     fun removeTimerObsever(){
         timerObsever--
+        if(timerObsever==0){
+            stop()
+        }
     }
 
     var isStart = false
     fun startTimer() {
+        if(timerObsever<=0){
+            return
+        }
         isStart = true
         time = 0
+        jobTime?.cancel()
         jobTime = GlobalScope.launch(Dispatchers.Default) {
             repeat(Int.MAX_VALUE) {
                 time += 5
@@ -33,5 +43,9 @@ object LoopTimer {
         isStart = false
         jobTime?.cancel()
         jobTime = null
+    }
+
+    fun reset(){
+        time = 0
     }
 }

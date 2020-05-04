@@ -70,6 +70,7 @@ class TraversalTracer :ITracer(){
 
     private val callback = Runnable {
         isTraversal = true
+        Log.d(TAG,"traversal")
     }
 
     private fun addCallbackQueues(){
