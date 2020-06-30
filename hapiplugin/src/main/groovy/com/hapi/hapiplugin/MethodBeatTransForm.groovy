@@ -1,19 +1,17 @@
 package com.hapi.hapiplugin
 
-import com.android.build.api.transform.DirectoryInput
+
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformException
 import com.android.build.api.transform.TransformInvocation
 import com.android.build.api.transform.TransformOutputProvider
-import javassist.ClassPool
-import javassist.CtClass
-import javassist.CtMethod
 import org.gradle.api.Project
 
 class MethodBeatTransForm extends AbsTransForm{
 
 
     Project mProject
+    private Boolean jarTransform = true
     MethodBeatTransForm(Project project) {
         mProject = project
 //        println "variant  before"
@@ -40,14 +38,13 @@ class MethodBeatTransForm extends AbsTransForm{
         BeatInject.injectJarCost(jarInput,mProject,outputProvider)
     }
 
-    @Override
-    void transformDirectoryInput(DirectoryInput directoryInput) {
-        BeatInject.injectCost(directoryInput.file,mProject)
-    }
+
+
+
 
     @Override
-    void transformSingleFile(File inputFile, File destFile, String srcDirPath) {
-        BeatInject.injectSingleCost(inputFile,srcDirPath,mProject)
+    void transformSingleFile(String baseClassPath,File file) {
+        BeatInject.injectFileCost( baseClassPath,file,mProject)
     }
 
     /**
@@ -71,9 +68,15 @@ class MethodBeatTransForm extends AbsTransForm{
         String black = hapi.blackList
         BeatInject.blackList = black.split(",")
 
+        jarTransform = hapi.jarTransform
 
         println "blackList  ${black.toString()}"
         return isOpen && !isReleaseBuildType()
+    }
+
+    @Override
+    boolean needJarTransform() {
+        return jarTransform
     }
 
     boolean isReleaseBuildType(){

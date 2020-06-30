@@ -1,22 +1,12 @@
 package com.hapi.hapiplugin
-import com.android.build.api.transform.DirectoryInput
-import com.android.build.api.transform.JarInput
-import com.android.build.api.transform.QualifiedContent
-import com.android.build.api.transform.Status
-import com.android.build.api.transform.Transform
-import com.android.build.api.transform.TransformException
-import com.android.build.api.transform.TransformInput
-import com.android.build.api.transform.TransformInvocation
-import com.android.build.api.transform.TransformOutputProvider
+
+import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.ide.common.internal.WaitableExecutor
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.codec.digest.DigestUtils
-import org.gradle.api.Project
-import com.android.build.api.transform.Format
+import org.apache.commons.io.FileUtils
 
 import java.util.concurrent.Callable
-
 
 abstract class AbsTransForm extends Transform {
 
@@ -36,10 +26,10 @@ abstract class AbsTransForm extends Transform {
         return true
     }
 
-    private WaitableExecutor waitableExecutor = WaitableExecutor.useGlobalSharedThreadPool();
+    protected WaitableExecutor waitableExecutor = WaitableExecutor.useGlobalSharedThreadPool();
 
     abstract boolean  needTransform()
-
+    abstract boolean  needJarTransform()
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         super.transform(transformInvocation)
@@ -58,16 +48,21 @@ abstract class AbsTransForm extends Transform {
             transformInvocation.getInputs().each { TransformInput input ->
                 input.jarInputs.each { JarInput jarInput ->
                     //处理Jar
-                    processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
-                    //     不处理jar文件
-                    // 重命名输出文件（同目录copyFile会冲突）
-//                    def jarName = jarInput.name
-//                    def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
-//                    if (jarName.endsWith(".jar")) {
-//                        jarName = jarName.substring(0, jarName.length() - 4)
-//                    }
-//                    def dest = transformInvocation.outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
-//                    FileUtils.copyFile(jarInput.file, dest)
+                    if(needJarTransform()){
+                        processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
+                    }else {
+
+
+                             //不处理jar文件
+                       //  重命名输出文件（同目录copyFile会冲突）
+                    def jarName = jarInput.name
+                    def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
+                    if (jarName.endsWith(".jar")) {
+                        jarName = jarName.substring(0, jarName.length() - 4)
+                    }
+                    def dest = transformInvocation.outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
+                    FileUtils.copyFile(jarInput.file, dest)
+                    }
                 }
 
                 input.directoryInputs.each { DirectoryInput directoryInput ->
@@ -156,9 +151,7 @@ abstract class AbsTransForm extends Transform {
 
     abstract void transformJarInput(JarInput jarInput,TransformOutputProvider outputProvider)
 
-    abstract void transformDirectoryInput(DirectoryInput directoryInput)
-
-    abstract void transformSingleFile(File inputFile, File destFile, String srcDirPath)
+    abstract void   transformSingleFile(String baseClassPath,File file)
 
 
     void processDirectoryInputWithIncremental(DirectoryInput directoryInput, TransformOutputProvider outputProvider, boolean isIncremental) {
@@ -205,7 +198,7 @@ abstract class AbsTransForm extends Transform {
 //                        }
 //                    })
                     FileUtils.touch(destFile)
-                    transformSingleFile(inputFile, destFile, srcDirPath)
+                    transformSingleFile(srcDirPath, inputFile)
                     FileUtils.copyFile(inputFile, destFile);
                     break
             }
@@ -217,21 +210,29 @@ abstract class AbsTransForm extends Transform {
     }
 
     void transformDirectoryInput(DirectoryInput directoryInput, File dest) {
-        waitableExecutor.execute(new Callable<Void>(){
-/**
- * Computes a result, or throws an exception if unable to do so.
- *
- * @return computed result
- * @throws Exception if unable to compute a result
- */
+        String srcDirPath = directoryInput.getFile().getAbsolutePath()
+        String destDirPath = dest.getAbsolutePath()
 
-            @Override
-            Void call()  {
-                transformDirectoryInput(directoryInput)
-                //将修改过的字节码copy到dest，就可以实现编译期间干预字节码的目的了
-                FileUtils.copyDirectory(directoryInput.getFile(), dest)
-            }
-        })
+        ( (File)(directoryInput.getFile())).eachFileRecurse { file ->
+            waitableExecutor.execute(new Callable<Void>(){
+                @Override
+                Void call()  {
+                    if(file.isDirectory()){
+                    }else {
+                        println "file getAbsolutePath"+file.getAbsolutePath()
+                        String destFilePath = file.getAbsolutePath().replace(srcDirPath, destDirPath)
+                        println "destFilePath getAbsolutePath"+destFilePath
+                        File destFile = new File(destFilePath)
+
+                        FileUtils.touch(destFile)
+                        transformSingleFile(srcDirPath, file)
+                        //将修改过的字节码copy到dest，就可以实现编译期间干预字节码的目的了
+                        FileUtils.copyFile(file, destFile);
+                    }
+                }
+            })
+        }
+
 
     }
 

@@ -1,24 +1,21 @@
 package com.hapi.hapiplugin
 
-
 import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
-import javassist.CtNewMethod
 import javassist.Modifier
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.compress.utils.IOUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
-import java.lang.String
+
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
-
 
 class BeatInject {
 
@@ -38,6 +35,8 @@ class BeatInject {
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
         sClassPool.appendClassPath(methodBeatClass)
         def jarName = jarInput.name
+
+        println("jarName : "+jarName)
         def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
 
         if (jarName.endsWith(".jar")) {
@@ -124,47 +123,21 @@ class BeatInject {
     }
 
 
-    static void injectCost(File baseClassPath, Project project) {
 
-        println "injectCost " + baseClassPath
-        //添加Android相关的类
+
+    static void injectFileCost(String baseClassPath,File file, Project project){
         def methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
         sClassPool.appendClassPath(methodBeatClass)
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-        println " methodBeatClass ${methodBeatClass}"
-        if (baseClassPath.isDirectory()) {
-            //遍历文件获取类
-            baseClassPath.eachFileRecurse { classFile ->
-                //过滤掉一些生成的类
-                if (check(classFile)) {
-                    println "find class : ${classFile.path}"
 
-                    //把类文件路径转成类名
-                    def className = convertClass(baseClassPath.path, classFile.path)
-                    println "className" + className
-
-                    //注入代码
-                    inject(baseClassPath.path, className)
-                }
-            }
-        }
-    }
-
-    static void injectSingleCost(File file, String baseClassPath, Project project) {
-        //把类路径添加到classpool
-        //添加Android相关的类
-        println "injectCost " + baseClassPath
-        def methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
-        sClassPool.appendClassPath(methodBeatClass)
-        sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-        def classFile = file.path
-        println " methodBeatClass ${methodBeatClass}"
+        //过滤掉一些生成的类
         if (check(file)) {
-            println "injectSingleCost find class : ${classFile}"
+            println "find baseClassPath "+baseClassPath
 
             //把类文件路径转成类名
-            def className = convertClass(baseClassPath, classFile)
-            println "injectSingleCost" + className
+            def className = convertClass(baseClassPath, file.path)
+            println "className" + className
+
             //注入代码
             inject(baseClassPath, className)
         }

@@ -1,8 +1,8 @@
 package com.hapi.hapiplugin
 
+import com.android.build.gradle.AppExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import com.android.build.gradle.AppExtension
 
 /**
  * 接收额外的输入，如是否需要注入代码
