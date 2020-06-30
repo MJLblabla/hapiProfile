@@ -4,5 +4,7 @@ class Hapi {
     def  isOpen = false
     def msg ="aaa"
     def blackList =""
-    def jarTransform=false
+    def whiteJarList =""
+    def jarTransform=true
+    def androidBaseJarOnly=false
 }

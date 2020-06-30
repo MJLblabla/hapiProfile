@@ -36,7 +36,7 @@ class BeatInject {
         sClassPool.appendClassPath(methodBeatClass)
         def jarName = jarInput.name
 
-        println("jarName : "+jarName)
+
         def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
 
         if (jarName.endsWith(".jar")) {
@@ -59,7 +59,7 @@ class BeatInject {
             String entryName = jarEntry.getName()
             ZipEntry zipEntry = new ZipEntry(entryName)
             InputStream inputStream = jarFile.getInputStream(jarEntry)
-
+            println("jarName : "+jarName+"     entryName"+entryName)
             if (checkStr(entryName)) {
 
                 jarOutputStream.putNextEntry(zipEntry)
@@ -241,6 +241,8 @@ class BeatInject {
                 !filePath.contains('com/hapi/aop/') &&
                 !filePath.contains('BuildConfig.class')
     }
+
+
 
 
 }

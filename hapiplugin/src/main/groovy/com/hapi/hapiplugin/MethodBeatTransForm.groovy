@@ -9,7 +9,9 @@ import org.gradle.api.Project
 
 class MethodBeatTransForm extends AbsTransForm{
 
+    def androidBaseJarOnly  = true
 
+    String[] whiteJarArray
     Project mProject
     private Boolean jarTransform = true
     MethodBeatTransForm(Project project) {
@@ -68,14 +70,38 @@ class MethodBeatTransForm extends AbsTransForm{
         BeatInject.blackList = black.split(",")
 
         jarTransform = hapi.jarTransform
-
+        whiteJarArray =hapi.whiteJarList.split(",")
         println "blackList  ${black.toString()}"
         return isOpen && !isReleaseBuildType()
     }
 
     @Override
-    boolean needJarTransform() {
-        return jarTransform
+    boolean needJarTransform(JarInput jarInput ) {
+        if(jarTransform){
+          if(androidBaseJarOnly){
+              println "jarInput.name...  ${jarInput.name}";
+              if(jarInput.name.startsWith("androidx")
+                      ||jarInput.name.startsWith("android")
+                  ||jarInput.name.startsWith("com.google.android")
+              ){
+                  return true
+              }
+          }
+            if(whiteJarArray!=null&&whiteJarArray.length!=0){
+                for(String s:whiteJarArray){
+                    if(s == jarInput.name){
+                     return true
+                    }
+                }
+            }
+
+            if(androidBaseJarOnly){
+                return false
+            }
+              return true
+        }else {
+            return false
+        }
     }
 
     boolean isReleaseBuildType(){

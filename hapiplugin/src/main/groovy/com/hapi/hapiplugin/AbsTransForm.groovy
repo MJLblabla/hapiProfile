@@ -29,7 +29,7 @@ abstract class AbsTransForm extends Transform {
     protected WaitableExecutor waitableExecutor = WaitableExecutor.useGlobalSharedThreadPool();
 
     abstract boolean  needTransform()
-    abstract boolean  needJarTransform()
+    abstract boolean  needJarTransform(JarInput jarInput )
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         super.transform(transformInvocation)
@@ -48,7 +48,7 @@ abstract class AbsTransForm extends Transform {
             transformInvocation.getInputs().each { TransformInput input ->
                 input.jarInputs.each { JarInput jarInput ->
                     //处理Jar
-                    if(needJarTransform()){
+                    if(needJarTransform( jarInput )){
                         processJarInputWithIncremental(jarInput, outputProvider, isIncremental)
                     }else {
 
