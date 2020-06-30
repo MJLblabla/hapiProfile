@@ -1,8 +1,5 @@
-plugins {
-    id 'groovy'
-    id 'maven-publish'
-    id 'maven'
-}
+apply plugin: 'groovy'
+apply from: '../maven_push.gradle'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -32,18 +29,18 @@ repositories {
 }
 
 
-group   = 'com.hapi'
-version = '1.0.0'
-
-publishing {
-    repositories {
-        maven {
-            url = uri("$rootDir/repo")
-        }
-    }
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
-    }
-}
+//group   = 'com.hapi'
+//version = '1.0.0'
+//
+//publishing {
+//    repositories {
+//        maven {
+//            url = uri("$rootDir/repo")
+//        }
+//    }
+//    publications {
+//        maven(MavenPublication) {
+//            from components.java
+//        }
+//    }
+//}

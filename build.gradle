@@ -5,28 +5,31 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven {
-            url = uri("$rootDir/repo")
-        }
+        maven { url 'https://jitpack.io'}
+        maven { url "http://nexus.shengshow.com/nexus/content/groups/public/" }
+        maven { url "http://nexus.shengshow.com/nexus/content/repositories/snapshots/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
-
-        classpath 'com.hapi:hapiplugin:1.0.0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+        classpath 'com.pince.plugin:gradle-depend:1.1.8'
+        classpath 'com.pince.plugin:upaar:1.0.9'
     }
 }
 
 allprojects {
+    apply plugin: 'com.pince.depend'
+
     repositories {
         google()
         jcenter()
-        maven {
-            url = uri("$rootDir/repo")
-        }
+        maven { url 'https://jitpack.io'}
+        maven { url "http://nexus.shengshow.com/nexus/content/groups/public/" }
+        maven { url "http://nexus.shengshow.com/nexus/content/repositories/snapshots/" }
+
     }
 }
 
