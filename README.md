@@ -64,5 +64,5 @@ hapiProfile
             }
 
 
-  [1]: https://github.com/MJLblabla/hapiProfile/blob/master/app/a.jpg
-  [2]: https://github.com/MJLblabla/hapiProfile/blob/master/app/b.jpg
+  [1]: http://git.7guoyouxi.com/android_repo/hapiProfile/blob/master/app/a.jpg
+  [2]: http://git.7guoyouxi.com/android_repo/hapiProfile/blob/master/app/b.jpg
