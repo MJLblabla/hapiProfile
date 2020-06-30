@@ -64,7 +64,6 @@ class MethodBeatTransForm extends AbsTransForm{
         def  isOpen = hapi.isOpen
         println("hapi ${hapi.isOpen} ${hapi.msg} ")
 
-        String baseMethodMapFile = hapi.baseMethodMapFile
         String black = hapi.blackList
         BeatInject.blackList = black.split(",")
 
