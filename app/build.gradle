@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'com.hapi.hapiplugin'
-//
-//hapi{
-//    baseMethodMapFile = "${project.projectDir}/matrixTrace/methodMapping.txt"
-//    isOpen true
-//    blackList  "androidx/core/graphics"
-//}
+apply plugin: 'com.hapi.hapiplugin'
+
+hapi{
+    baseMethodMapFile = "${project.projectDir}/matrixTrace/methodMapping.txt"
+    isOpen true
+    blackList  "androidx/core/graphics"
+}
 
 
 android {
@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId "com.hapi.aoptest"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -45,6 +45,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation project(":hapiaop")
+    implementation "com.pince.maven:hapiAop:1.0.0"
 
 }

@@ -4,7 +4,8 @@
 
 
 
-
+apply plugin: 'com.hapi.hapiplugin'
+implementation "com.pince.maven:hapiAop:1.0.0"
   
 
 hapiProfile
