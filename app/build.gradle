@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.hapi.hapiplugin'
 
 hapi{
+    baseMethodMapFile = "${project.projectDir}/matrixTrace/methodMapping.txt"
     isOpen true
     blackList  "androidx/core/graphics"
 }

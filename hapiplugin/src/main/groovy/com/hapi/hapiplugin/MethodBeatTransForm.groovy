@@ -16,8 +16,25 @@ class MethodBeatTransForm extends AbsTransForm{
     Project mProject
     MethodBeatTransForm(Project project) {
         mProject = project
+//        println "variant  before"
+//        mProject.afterEvaluate {
+//            println "variant  afterEvaluate"
+//            def android = mProject.extensions.android
+//            android.applicationVariants.all { variant ->
+//                println "variant"+ variant
+//
+//                BeatInject.methodCollector = new MethodCollector(mProject,variant.getVariantData().getScope())
+//            }
+//        }
 
     }
+
+    @Override
+    void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
+        super.transform(transformInvocation)
+    }
+
+
     @Override
     void transformJarInput(JarInput jarInput, TransformOutputProvider outputProvider) {
         BeatInject.injectJarCost(jarInput,mProject,outputProvider)
@@ -49,9 +66,12 @@ class MethodBeatTransForm extends AbsTransForm{
         def hapi =  mProject.hapi
         def  isOpen = hapi.isOpen
         println("hapi ${hapi.isOpen} ${hapi.msg} ")
-        mProject.build
+
+        String baseMethodMapFile = hapi.baseMethodMapFile
         String black = hapi.blackList
         BeatInject.blackList = black.split(",")
+
+
         println "blackList  ${black.toString()}"
         return isOpen && !isReleaseBuildType()
     }

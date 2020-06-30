@@ -3,4 +3,5 @@ class Hapi {
     def  isOpen = false
     def msg ="aaa"
     def blackList =""
+    def  baseMethodMapFile = ""
 }

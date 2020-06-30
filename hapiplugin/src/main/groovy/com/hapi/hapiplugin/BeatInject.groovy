@@ -26,10 +26,10 @@ class BeatInject {
     static final ClassPool sClassPool = ClassPool.getDefault();
     static def methodBeatClass = null
     static def blackList = []
+    static def MethodCollector methodCollector;
 
 
     static void injectJarCost(JarInput jarInput, Project project, TransformOutputProvider outputProvider) {
-
 
         if (methodBeatClass == null) {
             methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
@@ -116,7 +116,7 @@ class BeatInject {
                 }
             } catch (Exception e) {
                // e.printStackTrace()
-                println "entryName ${entryName} ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
+               // println "entryName ${entryName} ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
             }
 
         }
