@@ -1,14 +1,15 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.hapi.hapiplugin'
-
-hapi{
-    baseMethodMapFile = "${project.projectDir}/matrixTrace/methodMapping.txt"
-    isOpen true
-    blackList  "androidx/core/graphics"
-}
-
+//apply plugin: 'com.hapi.hapiplugin'
+//
+//hapi{
+//    androidBaseJarOnly true
+//    jarTransform true
+//    isOpen true
+//    whiteJarList "httpclient,gson"
+//    blackList  "androidx/core/graphics"
+//}
 
 android {
     compileSdkVersion 29

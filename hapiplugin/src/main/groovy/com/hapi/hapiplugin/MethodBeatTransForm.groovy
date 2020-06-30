@@ -61,7 +61,7 @@ class MethodBeatTransForm extends AbsTransForm{
     }
 
     @Override
-     boolean  needTransform(){
+    boolean  needTransform(){
         def hapi =  mProject.hapi
         def  isOpen = hapi.isOpen
         println("hapi ${hapi.isOpen} ${hapi.msg} ")
@@ -78,27 +78,29 @@ class MethodBeatTransForm extends AbsTransForm{
     @Override
     boolean needJarTransform(JarInput jarInput ) {
         if(jarTransform){
-          if(androidBaseJarOnly){
-              println "jarInput.name...  ${jarInput.name}";
-              if(jarInput.name.startsWith("androidx")
-                      ||jarInput.name.startsWith("android")
-                  ||jarInput.name.startsWith("com.google.android")
-              ){
-                  return true
-              }
-          }
+            if(androidBaseJarOnly){
+                println "jarInput.name...  ${jarInput.name}";
+                if(jarInput.name.startsWith("androidx")
+                        ||jarInput.name.startsWith("android")
+                        ||jarInput.name.startsWith("com.google.android")
+                ){
+                    return true
+                }
+            }
+            boolean hasWhite = false
             if(whiteJarArray!=null&&whiteJarArray.length!=0){
+                hasWhite = true
                 for(String s:whiteJarArray){
-                    if(s == jarInput.name){
-                     return true
+                    if( jarInput.name.startsWith(s)){
+                        return true
                     }
                 }
             }
 
-            if(androidBaseJarOnly){
+            if(androidBaseJarOnly||hasWhite){
                 return false
             }
-              return true
+            return true
         }else {
             return false
         }
