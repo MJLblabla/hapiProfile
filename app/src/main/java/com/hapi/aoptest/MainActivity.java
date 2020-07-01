@@ -6,9 +6,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.hapi.aop.Beat;
-import com.hapi.aop.LoopTimer;
-import com.hapi.aop.MethodBeatMonitor;
+
 
 public class MainActivity extends AppCompatActivity {
 
