@@ -2,7 +2,7 @@ package com.hapi.aop.trans
 
 import com.hapi.aop.HapiMonitorPlugin
 import com.hapi.aop.LoopTimer
-import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
+import com.hapi.aopbeat.MethodBeatMonitorJava
 
 class BlockTracer : ITracer() {
 

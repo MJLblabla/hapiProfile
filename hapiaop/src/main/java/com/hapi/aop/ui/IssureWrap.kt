@@ -2,7 +2,7 @@ package com.hapi.aop.ui
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.hapi.hapiplugin.beat.Beat
+import com.hapi.aopbeat.Beat
 
 class IssureWrap() : Parcelable {
 

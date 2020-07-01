@@ -4,7 +4,7 @@ import android.os.SystemClock
 import android.view.Choreographer
 import com.hapi.aop.HapiMonitorPlugin
 import com.hapi.aop.LoopTimer
-import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
+import com.hapi.aopbeat.MethodBeatMonitorJava
 import java.lang.reflect.Method
 
 class TraversalTracer :ITracer(){

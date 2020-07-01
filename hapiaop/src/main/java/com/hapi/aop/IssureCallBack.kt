@@ -1,6 +1,7 @@
 package com.hapi.aop
 
-import com.hapi.hapiplugin.beat.Issure
+import com.hapi.aopbeat.Issure
+
 
 interface IssureCallBack {
 

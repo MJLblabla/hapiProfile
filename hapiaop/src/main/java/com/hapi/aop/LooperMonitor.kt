@@ -4,7 +4,7 @@ import android.os.Looper
 import android.util.Log
 import android.util.Printer
 import com.hapi.aop.util.ReflectUtils
-import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
+import com.hapi.aopbeat.MethodBeatMonitorJava
 import java.util.*
 
 object LooperMonitor : IMonitor {

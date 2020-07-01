@@ -7,10 +7,11 @@ import com.hapi.aop.trans.BlockTracer
 import com.hapi.aop.trans.FpsTracer
 import com.hapi.aop.trans.TraversalTracer
 import com.hapi.aop.util.DeviceUtil
-import com.hapi.hapiplugin.beat.Beat
-import com.hapi.hapiplugin.beat.BeatAdapter
-import com.hapi.hapiplugin.beat.Issure
-import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
+import com.hapi.aopbeat.Beat
+import com.hapi.aopbeat.BeatAdapter
+import com.hapi.aopbeat.Issure
+import com.hapi.aopbeat.MethodBeatMonitorJava
+
 
 object HapiMonitorPlugin {
 
@@ -26,7 +27,7 @@ object HapiMonitorPlugin {
 
     init {
         LooperMonitor.start()
-        MethodBeatMonitorJava.mBeatAdapter = object : BeatAdapter{
+        MethodBeatMonitorJava.mBeatAdapter = object : BeatAdapter {
             override fun getCurrentTime(): Int {
               return  LoopTimer.time
             }
@@ -35,7 +36,7 @@ object HapiMonitorPlugin {
                return Looper.getMainLooper().thread.id
             }
 
-            override fun issure(p0: MutableList<Beat>?,msg:String) {
+            override fun issure(p0: MutableList<Beat>?, msg:String) {
                 HapiMonitorPlugin.mMonitorConfig.issureCallBack?.let {
                     val issure = Issure()
                     issure.msg = msg

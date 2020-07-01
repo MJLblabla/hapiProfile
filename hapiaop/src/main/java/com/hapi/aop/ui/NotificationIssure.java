@@ -12,7 +12,7 @@ import android.util.Log;
 import com.hapi.aop.ActivityCollection;
 import com.hapi.aop.HapiMonitorPlugin;
 import com.hapi.aop.R;
-import com.hapi.hapiplugin.beat.Issure;
+import com.hapi.aopbeat.Issure;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 

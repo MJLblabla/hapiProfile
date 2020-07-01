@@ -2,8 +2,7 @@ package com.hapi.aop
 
 import android.util.Log
 import com.hapi.aop.ui.NotificationIssure
-import com.hapi.hapiplugin.MethodCollector
-import com.hapi.hapiplugin.beat.Issure
+import com.hapi.aopbeat.Issure
 
 class MonitorConfig {
     /**

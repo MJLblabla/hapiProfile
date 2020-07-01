@@ -4,11 +4,10 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.hapi.aop.R
-import com.hapi.hapiplugin.beat.Issure
 import kotlinx.android.synthetic.main.activity_issure.*
 
 
-class IssureActivity : AppCompatActivity() {
+class IssureActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

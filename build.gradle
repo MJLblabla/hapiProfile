@@ -17,7 +17,7 @@ buildscript {
         // in the individual module build.gradle files
         classpath 'com.pince.plugin:gradle-depend:1.1.8'
         classpath 'com.pince.plugin:upaar:1.0.9'
-        classpath 'com.pince.plugin:hapiAopPlugin:2.0.1'
+       // classpath 'com.pince.plugin:hapiAopPlugin:2.0.2'
     }
 }
 
