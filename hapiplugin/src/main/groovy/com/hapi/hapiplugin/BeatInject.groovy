@@ -3,7 +3,7 @@ package com.hapi.hapiplugin
 import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
-import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
+import com.hapi.aopbeat.MethodBeatMonitorJava
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
