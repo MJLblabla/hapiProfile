@@ -12,22 +12,13 @@ class IssureActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_issure)
-        val issure = intent.getParcelableExtra<IssureWrap>("issure")
-        issure?.let {
-            val msg = "msg  ${issure.msg}  " +
-                    "\n availMemory ${issure.availMemory} " +
-                    " \n totalMemory ${issure.totalMemory} " +
-                    "\n foregroundPageName  ${issure.foregroundPageName}" +
-                    "  cpuRate ${issure.cpuRate} \n\n"
-            val sb = StringBuffer()
-            sb.append(msg)
-            issure.methodBeats?.forEachIndexed { index, methodBeat ->
-                sb.append("top  ${index}  ${methodBeat.sign}  cost ${methodBeat.cost} \n")
 
-            }
-            tvCOntent.text = sb.toString()
 
-        }
+        val issure = intent.getStringExtra("issure")
+
+
+        tvCOntent.text =issure
+
 
     }
 }
