@@ -4,6 +4,7 @@ import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
 import com.hapi.aopbeat.MethodBeatMonitorJava
+import javassist.ClassClassPath
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
@@ -21,7 +22,7 @@ import java.util.zip.ZipEntry
 class BeatInject {
 
 
-    //static final ClassPool sClassPool = ClassPool.getDefault();
+    static final ClassPool sClassPool = ClassPool.getDefault();
     static def methodBeatClass = null
     static def blackList = []
     static def MethodCollector methodCollector;
@@ -29,14 +30,16 @@ class BeatInject {
 
     static void injectJarCost(JarInput jarInput, Project project, TransformOutputProvider outputProvider) {
         ClassPool.cacheOpenedJarFile = false
-        ClassPool sClassPool = new ClassPool(false)
+       // ClassPool sClassPool = new ClassPool(false)
 
         if (methodBeatClass == null) {
             methodBeatClass = MethodBeatMonitorJava.classLoader;//project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
         }
         //添加Android相关的类
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-        sClassPool.appendClassPath(new LoaderClassPath(MethodBeatMonitorJava.classLoader))
+        //sClassPool.appendClassPath(new LoaderClassPath(MethodBeatMonitorJava.classLoader))
+        sClassPool.insertClassPath(new ClassClassPath(MethodBeatMonitorJava.class));
+
         def jarName = jarInput.name
 
 
@@ -118,13 +121,13 @@ class BeatInject {
                     ctMethod.addLocalVariable("costStartTime", CtClass.longType);
                     ctMethod.addLocalVariable("diff", CtClass.intType);
                     ctMethod.insertBefore("" +
-                            "  needBeat=com.hapi.aop.MethodBeatMonitorJava.checkDeep();" +
-                            "         costStartTime =  com.hapi.aop.MethodBeatMonitorJava.getTime();" +
+                            "  needBeat=com.hapi.aopbeat.MethodBeatMonitorJava.checkDeep();" +
+                            "         costStartTime =  com.hapi.aopbeat.MethodBeatMonitorJava.getTime();" +
                             "")
                     ctMethod.insertAfter("" +
-                            "  diff = (int) (com.hapi.aop.MethodBeatMonitorJava.getTime()-costStartTime);" +
-                            "        if(needBeat && diff>com.hapi.aop.MethodBeatMonitorJava.getMinCostFilter()){" +
-                            "            com.hapi.aop.MethodBeatMonitorJava.addBeat(new com.hapi.aop.Beat(diff,\"${methodSign}\"));" +
+                            "  diff = (int) (com.hapi.aopbeat.MethodBeatMonitorJava.getTime()-costStartTime);" +
+                            "        if(needBeat && diff>com.hapi.aopbeat.MethodBeatMonitorJava.getMinCostFilter()){" +
+                            "            com.hapi.aopbeat.MethodBeatMonitorJava.addBeat(new com.hapi.aopbeat.Beat(diff,\"${methodSign}\"));" +
                             "        }" +
                             "")
                 }
@@ -144,12 +147,12 @@ class BeatInject {
 
 
     static void injectFileCost(String baseClassPath,File file, Project project){
-        def methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
-        ClassPool sClassPool = new ClassPool()
-       // sClassPool.appendClassPath(methodBeatClass)
-        sClassPool.appendClassPath(new LoaderClassPath(MethodBeatMonitorJava.classLoader))
+     //   ClassPool sClassPool = new ClassPool()
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
 
+        //def methodBeatClass = new LoaderClassPath(MethodBeatMonitorJava.class.classLoader)
+        println("methodBeatClass ClassClassPath" + new ClassClassPath(MethodBeatMonitorJava.class))
+        sClassPool.insertClassPath(new ClassClassPath(MethodBeatMonitorJava.class));
         //过滤掉一些生成的类
         if (check(file)) {
 

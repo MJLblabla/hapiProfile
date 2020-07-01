@@ -5,7 +5,7 @@ apply plugin: 'com.hapi.hapiplugin'
 
 hapi{
     androidBaseJarOnly true
-    jarTransform true
+    jarTransform false
     isOpen true
     whiteJarList "httpclient,gson"
     blackList  "androidx/core/graphics"

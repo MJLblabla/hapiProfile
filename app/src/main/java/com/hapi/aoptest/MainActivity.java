@@ -6,6 +6,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.hapi.aopbeat.MethodBeatMonitorJava;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        MethodBeatMonitorJava.checkDeep();
 
         setContentView(R.layout.activity_login);
         login = findViewById(R.id.login);

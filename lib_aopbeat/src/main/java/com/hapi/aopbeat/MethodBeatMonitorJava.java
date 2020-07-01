@@ -33,7 +33,7 @@ public class MethodBeatMonitorJava {
         if (Thread.currentThread().getId() != mBeatAdapter.getMainThreadId()) {
             return false;
         }
-        if (mBeatAdapter.isMainStart()) {
+        if (!mBeatAdapter.isMainStart()) {
             return false;
         }
         return methodDeep < maxDeep;
@@ -75,8 +75,21 @@ public class MethodBeatMonitorJava {
 
         while (iterator.hasNext()) {
             Beat i = iterator.next();
-            String[] itemMethodNameArray = i.sign.split(".");
-            String name = itemMethodNameArray[itemMethodNameArray.length - 1];
+
+            int index =i.sign.lastIndexOf('(');
+            if(index<=0){
+                continue;
+            }
+
+            String itemMethodNameArrayButParam2=i.sign.substring(0,index);
+            String itemMethodNameArrayParam = i.sign.substring(index);
+
+            String[] itemMethodNameArray = itemMethodNameArrayButParam2.split("\\.");
+            if(itemMethodNameArray.length<2){
+                continue;
+            }
+
+            String name = itemMethodNameArray[itemMethodNameArray.length - 1] +itemMethodNameArrayParam;
             if (name .equals(methodName )&& i.cost == cost) {
                 iterator.remove();
             } else {
