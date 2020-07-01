@@ -46,6 +46,7 @@ class MethodBeatTransForm extends AbsTransForm{
 
     @Override
     void transformSingleFile(String baseClassPath,File file) {
+        println("transformSingleFile" +file.absolutePath)
         BeatInject.injectFileCost( baseClassPath,file,mProject)
     }
 
