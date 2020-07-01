@@ -13,7 +13,7 @@ dependencies {
     //transform API 已经移到 gradle-api里面
     //implementation 'com.android.tools.build:transform-api:2.0.0-deprecated-use-gradle-api'
     //javassist
-    implementation 'org.javassist:javassist:3.23.1-GA'
+    implementation 'org.javassist:javassist:3.27.0-GA'
     //commons-io
     implementation "com.pince.maven:hapiAopBeat:1.0.0"
     implementation 'commons-io:commons-io:2.6'
