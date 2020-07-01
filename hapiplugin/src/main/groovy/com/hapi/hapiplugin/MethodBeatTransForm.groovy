@@ -61,14 +61,14 @@ class MethodBeatTransForm extends AbsTransForm{
     }
 
     @Override
-    boolean  needTransform(){
+     boolean  needTransform(){
         def hapi =  mProject.hapi
         def  isOpen = hapi.isOpen
         println("hapi ${hapi.isOpen} ${hapi.msg} ")
 
         String black = hapi.blackList
         BeatInject.blackList = black.split(",")
-
+        androidBaseJarOnly = hapi.androidBaseJarOnly
         jarTransform = hapi.jarTransform
         whiteJarArray =hapi.whiteJarList.split(",")
         println "blackList  ${black.toString()}"
@@ -78,21 +78,25 @@ class MethodBeatTransForm extends AbsTransForm{
     @Override
     boolean needJarTransform(JarInput jarInput ) {
         if(jarTransform){
-            if(androidBaseJarOnly){
-                println "jarInput.name...  ${jarInput.name}";
-                if(jarInput.name.startsWith("androidx")
-                        ||jarInput.name.startsWith("android")
-                        ||jarInput.name.startsWith("com.google.android")
-                ){
-                    return true
-                }
-            }
+          if(androidBaseJarOnly){
+
+              if(jarInput.name.startsWith("androidx")
+                      ||jarInput.name.startsWith("android")
+                  ||jarInput.name.startsWith("com.google.android")
+              ){
+                  println(jarInput.name +"  androidBaseJarOnly "+ androidBaseJarOnly + " "+ true)
+                  return true
+              }
+          }
             boolean hasWhite = false
+
+
             if(whiteJarArray!=null&&whiteJarArray.length!=0){
                 hasWhite = true
                 for(String s:whiteJarArray){
-                    if( jarInput.name.startsWith(s)){
-                        return true
+                  def  eq=  jarInput.name.startsWith(s) || jarInput.name == s
+                    if( eq){
+                     return true
                     }
                 }
             }
@@ -100,7 +104,8 @@ class MethodBeatTransForm extends AbsTransForm{
             if(androidBaseJarOnly||hasWhite){
                 return false
             }
-            return true
+            println(jarInput.name +"   处理")
+              return true
         }else {
             return false
         }

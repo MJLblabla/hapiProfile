@@ -3,11 +3,12 @@ package com.hapi.hapiplugin
 import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
+import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import javassist.LoaderClassPath
 import javassist.Modifier
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.compress.utils.IOUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
@@ -20,24 +21,24 @@ import java.util.zip.ZipEntry
 class BeatInject {
 
 
-    static final ClassPool sClassPool = ClassPool.getDefault();
+    //static final ClassPool sClassPool = ClassPool.getDefault();
     static def methodBeatClass = null
     static def blackList = []
     static def MethodCollector methodCollector;
 
 
     static void injectJarCost(JarInput jarInput, Project project, TransformOutputProvider outputProvider) {
+        ClassPool.cacheOpenedJarFile = false
+        ClassPool sClassPool = new ClassPool(false)
 
         if (methodBeatClass == null) {
-            methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
+            methodBeatClass = MethodBeatMonitorJava.classLoader;//project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
         }
         //添加Android相关的类
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-        sClassPool.appendClassPath(methodBeatClass)
+        sClassPool.appendClassPath(new LoaderClassPath(MethodBeatMonitorJava.classLoader))
         def jarName = jarInput.name
 
-
-        def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
 
         if (jarName.endsWith(".jar")) {
             jarName = jarName.substring(0, jarName.length() - 4)
@@ -45,29 +46,32 @@ class BeatInject {
 
         JarFile jarFile = new JarFile(jarInput.file)
         Enumeration enumeration = jarFile.entries()
-        File tmpFile = new File(jarInput.file.getParent() + File.separator + "classes_temp.jar")
+        File tmpFile = new File(jarInput.file.getParent() + File.separator +(Math.random()*100)+ "classes_temp.jar")
+
         //避免上次的缓存被重复插入
-        if (tmpFile.exists()) {
-            tmpFile.delete()
+        if(tmpFile.exists()){
+            FileUtils.forceDelete(tmpFile)
         }
-
         JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(tmpFile))
-
+        sClassPool.insertClassPath(jarInput.file.getAbsolutePath())
         //用于保存
         while (enumeration.hasMoreElements()) {
             JarEntry jarEntry = (JarEntry) enumeration.nextElement()
             String entryName = jarEntry.getName()
             ZipEntry zipEntry = new ZipEntry(entryName)
             InputStream inputStream = jarFile.getInputStream(jarEntry)
-            println("jarName : "+jarName+"     entryName"+entryName)
             if (checkStr(entryName)) {
 
                 jarOutputStream.putNextEntry(zipEntry)
                 //class文件处理
                 //entryName是class文件的全路径  把/替换成.  然后把后面的.class去掉
                 entryName = entryName.replace("/", ".").substring(0, entryName.length() - 6)
-                sClassPool.appendClassPath(jarInput.file.getAbsolutePath())
+
+
+               // sClassPool.removeCached2(entryName)
                 CtClass ctClass = sClassPool.getCtClass(entryName)
+
+                println( "ctClass"+ ctClass.toString())
 
                 if (ctClass.isFrozen()) {
                     // 如果冻结就解冻
@@ -75,6 +79,14 @@ class BeatInject {
                 }
                 initMethod(ctClass,entryName)
                 jarOutputStream.write(ctClass.toBytecode())
+                try {
+                    ctClass.writeFile()
+                    ctClass.detach()
+                } catch (Exception e) {
+                    e.printStackTrace()
+                }
+
+            //    sClassPool.removeCache(ctClass.name)
 
             } else {
                 jarOutputStream.putNextEntry(zipEntry)
@@ -86,15 +98,21 @@ class BeatInject {
         jarOutputStream.close()
         jarFile.close()
 
-        //处理完输入文件之后，要把输出给下一个任务
-        def dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
-        FileUtils.copyFile(tmpFile, dest)
-        tmpFile.delete()
+        File dest = outputProvider.getContentLocation(
+                jarInput.getFile().getAbsolutePath(),
+                jarInput.getContentTypes(),
+                jarInput.getScopes(),
+                Format.JAR)
 
+        //处理完输入文件之后，要把输出给下一个任务
+      //  def dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
+        println("处理完输入文件之后 jarName "+jarName+"    "+dest.path)
+        FileUtils.copyFile(tmpFile, dest)
+        FileUtils.forceDelete(tmpFile)
 
     }
 
-    private static void initMethod(CtClass ctClass,String entryName) {
+    private static void initMethod(CtClass ctClass, String entryName) {
         ctClass.getDeclaredMethods().each { ctMethod ->
             try {
                 if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
@@ -113,9 +131,10 @@ class BeatInject {
                             "        }" +
                             "")
                 }
+                def str= "entryName ${entryName} ctMethod ${ctMethod.getLongName()}   成功"
             } catch (Exception e) {
                // e.printStackTrace()
-               // println "entryName ${entryName} ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
+                def str= "entryName ${entryName} ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
             }
 
         }
@@ -127,19 +146,19 @@ class BeatInject {
 
     static void injectFileCost(String baseClassPath,File file, Project project){
         def methodBeatClass = project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
-        sClassPool.appendClassPath(methodBeatClass)
+        ClassPool sClassPool = new ClassPool()
+       // sClassPool.appendClassPath(methodBeatClass)
+        sClassPool.appendClassPath(new LoaderClassPath(MethodBeatMonitorJava.classLoader))
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
 
         //过滤掉一些生成的类
         if (check(file)) {
-            println "find baseClassPath "+baseClassPath
 
             //把类文件路径转成类名
             def className = convertClass(baseClassPath, file.path)
-            println "className" + className
 
             //注入代码
-            inject(baseClassPath, className)
+            inject(sClassPool,baseClassPath, className)
         }
     }
 
@@ -148,12 +167,12 @@ class BeatInject {
      * @param baseClassPath 写回原路径
      * @param clazz
      */
-    private static void inject(String baseClassPath, String clazz) {
+    private static void inject(ClassPool sClassPool, String baseClassPath, String clazz) {
 
-        println "把类路径添加到classpool ${baseClassPath}  ${clazz}"
         sClassPool.appendClassPath(baseClassPath)
         try {
             def ctClass = sClassPool.get(clazz)
+            println( "ctClass"+ ctClass.toString())
             //解冻
             if (ctClass.isFrozen()) {
                 ctClass.defrost()
@@ -171,7 +190,7 @@ class BeatInject {
             ctClass.writeFile(baseClassPath)
             ctClass.detach()//释放
         } catch (Exception e) {
-            println "e 插桩 错误  ${e.toString()}"
+
         }
 
     }
@@ -186,14 +205,12 @@ class BeatInject {
     private static String generateBody(CtClass ctClass, CtMethod ctMethod, String newName) {
         //方法返回类型
         def returnType = ctMethod.returnType.name
-        println returnType
         //生产的方法返回值
         def methodResult = "${newName}(\$\$);"
         if (!"void".equals(returnType)) {
             //处理返回值
             methodResult = "${returnType} result = " + methodResult
         }
-        println methodResult
         return "{long costStartTime = System.currentTimeMillis();" +
                 //调用原方法 xxx$$Impl() $$表示方法接收的所有参数
                 methodResult +

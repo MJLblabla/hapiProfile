@@ -11,8 +11,8 @@ import android.util.Log;
 
 import com.hapi.aop.ActivityCollection;
 import com.hapi.aop.HapiMonitorPlugin;
-import com.hapi.aop.Issure;
 import com.hapi.aop.R;
+import com.hapi.hapiplugin.beat.Issure;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -20,7 +20,16 @@ public class NotificationIssure {
 
     private static int id=1;
 
-    public static void send(final Issure issure){
+    public static void send(final Issure is){
+
+        IssureWrap issure = new IssureWrap();
+        issure.setAvailMemory(is.availMemory);
+        issure.setCpuRate(is.cpuRate);
+        issure.setForegroundPageName(is.foregroundPageName);
+        issure.setMethodBeats(is.methodBeats);
+        issure.setMsg(is.msg);
+        issure.setTotalMemory(is.totalMemory);
+
         Context context = HapiMonitorPlugin.INSTANCE.getContext().getApplicationContext();
         Intent intent ;
         id++;
@@ -46,7 +55,7 @@ public class NotificationIssure {
                      .setSmallIcon(R.drawable.block)
                     .setContentTitle("卡顿")
                     .setContentIntent(pendingIntent)
-                    .setContentText(issure.msg)
+                    .setContentText(issure.getMsg())
                     .build();
 // 2. 获取系统的通知管理器(必须设置channelId)
             NotificationManager notificationManager = (NotificationManager) context
@@ -63,7 +72,7 @@ public class NotificationIssure {
 // 创建通知(标题、内容、图标)
             Notification notification = new Notification.Builder(context)
                     .setContentTitle("卡顿")
-                    .setContentText(issure.msg)
+                    .setContentText(issure.getMsg())
                     .setContentIntent(pendingIntent)
                     .setSmallIcon(R.drawable.block)
                     .build();

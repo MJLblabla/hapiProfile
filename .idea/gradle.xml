@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/hapiaop" />
             <option value="$PROJECT_DIR$/hapiplugin" />
+            <option value="$PROJECT_DIR$/lib_aopbeat" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

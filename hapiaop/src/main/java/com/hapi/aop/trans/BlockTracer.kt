@@ -1,9 +1,8 @@
 package com.hapi.aop.trans
 
-import android.util.Log
 import com.hapi.aop.HapiMonitorPlugin
 import com.hapi.aop.LoopTimer
-import com.hapi.aop.MethodBeatMonitor
+import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
 
 class BlockTracer : ITracer() {
 
@@ -23,7 +22,7 @@ class BlockTracer : ITracer() {
         val timeCost = endTime - startTime
 
         if (timeCost > HapiMonitorPlugin.mMonitorConfig.blockCostIssue) {
-            MethodBeatMonitor.issue("主线程卡顿 $timeCost")
+            MethodBeatMonitorJava.issue("主线程卡顿 $timeCost")
         }
     }
 

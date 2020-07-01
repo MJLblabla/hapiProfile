@@ -1,11 +1,12 @@
 apply plugin: 'groovy'
 apply from: '../maven_push.gradle'
-
+apply plugin: 'kotlin'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //build tools
     implementation 'com.android.tools.build:gradle:3.6.3'
     //gradle sdk
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation gradleApi()
     //groovy sdk
     implementation localGroovy()

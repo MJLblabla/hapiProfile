@@ -1,12 +1,10 @@
 package com.hapi.aop.trans
 
 import android.os.SystemClock
-import android.util.Log
 import android.view.Choreographer
 import com.hapi.aop.HapiMonitorPlugin
 import com.hapi.aop.LoopTimer
-import com.hapi.aop.MethodBeatMonitor
-import com.hapi.aop.util.MatrixLog
+import com.hapi.hapiplugin.beat.MethodBeatMonitorJava
 import java.lang.reflect.Method
 
 class TraversalTracer :ITracer(){
@@ -51,7 +49,7 @@ class TraversalTracer :ITracer(){
             if(isStart){
                 val timeSpan = LoopTimer.time - startTime
                 if(timeSpan >  HapiMonitorPlugin.mMonitorConfig.frameCostIssues){
-                    MethodBeatMonitor.issue("单帧耗时过大 ${timeSpan}")
+                    MethodBeatMonitorJava.issue("单帧耗时过大 ${timeSpan}")
                 }
                 addCallbackQueues()
             }

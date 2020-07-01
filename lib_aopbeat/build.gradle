@@ -1,10 +1,22 @@
 apply plugin: 'java-library'
 apply plugin: 'kotlin'
 
-dependencies {
-  implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+apply plugin: 'com.pince.upaar'
+
+
+upinfo{
+    groupId = 'com.pince.maven' //选填 默认为此参数
+    artifactId = 'hapiAopBeat' //必填 组件名称
+    version = '1.0.0'     //必填 组件版本
+    gitRepo = 'origin' //选填
+    packaging = 'jar' //选填 默认aar 可填jar
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"

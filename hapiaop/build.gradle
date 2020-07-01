@@ -8,7 +8,7 @@ apply plugin: 'com.pince.upaar'
 upinfo{
     groupId = 'com.pince.maven' //选填 默认为此参数
     artifactId = 'hapiAop' //必填 组件名称
-    version = '1.0.0'     //必填 组件版本
+    version = '1.0.1'     //必填 组件版本
     gitRepo = 'origin' //选填
     packaging = 'aar' //选填 默认aar 可填jar
 }
@@ -41,7 +41,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation 'androidx.core:core-ktx:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
@@ -50,4 +50,5 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.4"
     implementation "com.carrotsearch:java-sizeof:0.0.3"
+    implementation 'com.pince.plugin:hapiAopPlugin:2.0.1'
 }

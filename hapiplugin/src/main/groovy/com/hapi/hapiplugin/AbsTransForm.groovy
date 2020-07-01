@@ -115,6 +115,16 @@ abstract class AbsTransForm extends Transform {
                 case Status.NOTCHANGED:
                     break
                 case Status.ADDED:
+                    waitableExecutor.execute(new Callable<Void>(){
+
+
+                        @Override
+                        Void call() {
+                            transformJarInput(jarInput,outputProvider)
+                            return null
+                        }
+                    })
+                    break
                 case Status.CHANGED:
                     //处理有变化的
                     waitableExecutor.execute(new Callable<Void>(){
@@ -122,6 +132,7 @@ abstract class AbsTransForm extends Transform {
 
                         @Override
                         Void call() {
+                            println("jar change  "+ jarInput.name+ "  jar.path "+jarInput.file.path+  "  dest"+dest+"")
                             transformJarInput(jarInput,outputProvider)
                             return null
                         }
@@ -141,6 +152,7 @@ abstract class AbsTransForm extends Transform {
 
                 @Override
                 Void call()  {
+                    println("不处理增量编译  "+ jarInput.name+ "  jar.path "+jarInput.file.path)
                     transformJarInput(jarInput,outputProvider)
                 }
             })
@@ -219,9 +231,7 @@ abstract class AbsTransForm extends Transform {
                 Void call()  {
                     if(file.isDirectory()){
                     }else {
-                        println "file getAbsolutePath"+file.getAbsolutePath()
                         String destFilePath = file.getAbsolutePath().replace(srcDirPath, destDirPath)
-                        println "destFilePath getAbsolutePath"+destFilePath
                         File destFile = new File(destFilePath)
 
                         FileUtils.touch(destFile)

@@ -1,11 +1,11 @@
 package com.hapi.aop.ui
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.hapi.aop.Issure
 import com.hapi.aop.R
+import com.hapi.hapiplugin.beat.Issure
 import kotlinx.android.synthetic.main.activity_issure.*
-import java.text.DecimalFormat
 
 
 class IssureActivity : AppCompatActivity() {
@@ -13,7 +13,7 @@ class IssureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_issure)
-        val issure = intent.getParcelableExtra<Issure>("issure")
+        val issure = intent.getParcelableExtra<IssureWrap>("issure")
         issure?.let {
             val msg = "msg  ${issure.msg}  " +
                     "\n availMemory ${issure.availMemory} " +

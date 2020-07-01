@@ -61,7 +61,7 @@ public class ReClassPool extends ClassPool {
         return super.get0(classname, false);
     }
 
-    public  CtClass getnew(String classname){
+    public CtClass getnew(String classname){
         try {
             return get0(classname,false);
         } catch (NotFoundException e) {

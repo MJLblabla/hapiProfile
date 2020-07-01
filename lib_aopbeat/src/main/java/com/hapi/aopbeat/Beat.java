@@ -1,4 +1,4 @@
-package com.hapi.hapiplugin.beat;
+package com.hapi.aopbeat;
 
 
 import java.io.Serializable;

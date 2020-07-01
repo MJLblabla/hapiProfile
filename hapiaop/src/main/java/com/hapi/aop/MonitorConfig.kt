@@ -2,6 +2,8 @@ package com.hapi.aop
 
 import android.util.Log
 import com.hapi.aop.ui.NotificationIssure
+import com.hapi.hapiplugin.MethodCollector
+import com.hapi.hapiplugin.beat.Issure
 
 class MonitorConfig {
     /**
@@ -18,6 +20,7 @@ class MonitorConfig {
      */
     var issureCallBack:IssureCallBack = object : IssureCallBack {
         override fun onIssure(issure: Issure) {
+
             Log.d("IssureCallBack","msg  ${issure.msg}  availMemory ${issure.availMemory} " +
                     "totalMemory ${issure.totalMemory}   foregroundPageName  ${issure.foregroundPageName}  cpuRate" +
                     "${issure.cpuRate}"
