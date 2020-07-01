@@ -67,11 +67,8 @@ class BeatInject {
                 //entryName是class文件的全路径  把/替换成.  然后把后面的.class去掉
                 entryName = entryName.replace("/", ".").substring(0, entryName.length() - 6)
 
-
                // sClassPool.removeCached2(entryName)
                 CtClass ctClass = sClassPool.getCtClass(entryName)
-
-                println( "ctClass"+ ctClass.toString())
 
                 if (ctClass.isFrozen()) {
                     // 如果冻结就解冻
@@ -106,7 +103,7 @@ class BeatInject {
 
         //处理完输入文件之后，要把输出给下一个任务
       //  def dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
-        println("处理完输入文件之后 jarName "+jarName+"    "+dest.path)
+
         FileUtils.copyFile(tmpFile, dest)
         FileUtils.forceDelete(tmpFile)
 
@@ -132,9 +129,11 @@ class BeatInject {
                             "")
                 }
                 def str= "entryName ${entryName} ctMethod ${ctMethod.getLongName()}   成功"
+                println(str)
             } catch (Exception e) {
                // e.printStackTrace()
                 def str= "entryName ${entryName} ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
+                 println(str)
             }
 
         }
@@ -172,7 +171,7 @@ class BeatInject {
         sClassPool.appendClassPath(baseClassPath)
         try {
             def ctClass = sClassPool.get(clazz)
-            println( "ctClass"+ ctClass.toString())
+
             //解冻
             if (ctClass.isFrozen()) {
                 ctClass.defrost()
