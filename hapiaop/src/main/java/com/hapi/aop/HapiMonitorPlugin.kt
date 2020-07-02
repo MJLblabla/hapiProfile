@@ -13,6 +13,9 @@ import com.hapi.aopbeat.Issure
 import com.hapi.aopbeat.MethodBeatMonitorJava
 
 
+/**
+ * 插件开启，配置入口
+ */
 object HapiMonitorPlugin {
 
 

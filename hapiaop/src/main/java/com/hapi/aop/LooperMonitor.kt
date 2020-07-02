@@ -7,6 +7,9 @@ import com.hapi.aop.util.ReflectUtils
 import com.hapi.aopbeat.MethodBeatMonitorJava
 import java.util.*
 
+/**
+ * 监听主线程 loop的一次开始
+ */
 object LooperMonitor : IMonitor {
 
     private val TAG = "TAG"

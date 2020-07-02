@@ -5,6 +5,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+/**
+ * 打点器
+ */
 public class MethodBeatMonitorJava {
 
     private final String Tag = "MethodBeatMonitor";
@@ -39,6 +42,10 @@ public class MethodBeatMonitorJava {
         return methodDeep < maxDeep;
     }
 
+    /**
+     * 方法结束 打点
+     * @param beat
+     */
     public static void addBeat(Beat beat) {
         methodDeep++;
         beats.addFirst(beat);
@@ -56,10 +63,19 @@ public class MethodBeatMonitorJava {
         return minCostFilter;
     }
 
+    /**
+     * 取出打点记录 回调上报
+     * @param msg
+     */
     public static void issue(String msg) {
         if(mBeatAdapter==null){
             return;
         }
+
+        if(beats.isEmpty()){
+            return;
+        }
+
         beats.sort(new Comparator<Beat>() {
             @Override
             public int compare(Beat o1, Beat o2) {

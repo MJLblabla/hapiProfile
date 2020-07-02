@@ -2,6 +2,9 @@ package com.hapi.aop
 
 import kotlinx.coroutines.*
 
+/**
+ * 每次取system时间太耗费，每5好
+ */
 object LoopTimer {
     private var jobTime: Job? = null
     var time = 0
@@ -9,6 +12,9 @@ object LoopTimer {
 
     var timerObsever = 0
 
+    /**
+     * 记录需要用到时间的插件 如果没有人用到 那我也没必要计时了
+     */
     fun addTimerObsever(){
         timerObsever++
         if(timerObsever==1){

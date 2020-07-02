@@ -7,6 +7,9 @@ import com.hapi.aop.LoopTimer
 import com.hapi.aopbeat.MethodBeatMonitorJava
 import java.lang.reflect.Method
 
+/**
+ * 绘制耗时检测
+ */
 class TraversalTracer :ITracer(){
 
     private val TAG = "TraselTracer"

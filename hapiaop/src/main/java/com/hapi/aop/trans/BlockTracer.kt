@@ -4,6 +4,9 @@ import com.hapi.aop.HapiMonitorPlugin
 import com.hapi.aop.LoopTimer
 import com.hapi.aopbeat.MethodBeatMonitorJava
 
+/**
+ * 卡顿检查
+ */
 class BlockTracer : ITracer() {
 
     private val TAG = "BlockTracer"

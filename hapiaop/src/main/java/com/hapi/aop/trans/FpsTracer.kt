@@ -3,6 +3,9 @@ package com.hapi.aop.trans
 import android.util.Log
 import android.view.Choreographer
 
+/**
+ * 帧率检查
+ */
 class FpsTracer : ITracer(false){
 
     private val TAG="FpsTracer"
