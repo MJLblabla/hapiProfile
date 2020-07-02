@@ -55,11 +55,13 @@ object LooperMonitor : IMonitor {
         }
 
         if (isBegin) {
+            Log.d(TAG," loop start")
             MethodBeatMonitorJava.dispatchMsgStart()
             mLoopListeners.forEach {
                 it.dispatchMsgStart()
             }
         } else {
+            Log.d(TAG," loop stop")
             mLoopListeners.forEach {
                 it.dispatchMsgStop()
             }
