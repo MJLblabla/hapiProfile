@@ -30,19 +30,13 @@ class BeatInject {
 
     static void injectJarCost(JarInput jarInput, Project project, TransformOutputProvider outputProvider) {
         ClassPool.cacheOpenedJarFile = false
-       // ClassPool sClassPool = new ClassPool(false)
-
         if (methodBeatClass == null) {
             methodBeatClass = MethodBeatMonitorJava.classLoader;//project.rootProject.projectDir.toString() + "/hapiaop/build/intermediates/javac/debug/classes/"
         }
         //添加Android相关的类
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-        //sClassPool.appendClassPath(new LoaderClassPath(MethodBeatMonitorJava.classLoader))
         sClassPool.insertClassPath(new ClassClassPath(MethodBeatMonitorJava.class));
-
         def jarName = jarInput.name
-
-
         if (jarName.endsWith(".jar")) {
             jarName = jarName.substring(0, jarName.length() - 4)
         }
@@ -147,11 +141,7 @@ class BeatInject {
 
 
     static void injectFileCost(String baseClassPath,File file, Project project){
-     //   ClassPool sClassPool = new ClassPool()
         sClassPool.appendClassPath(project.android.bootClasspath[0].toString())
-
-        //def methodBeatClass = new LoaderClassPath(MethodBeatMonitorJava.class.classLoader)
-        println("methodBeatClass ClassClassPath" + new ClassClassPath(MethodBeatMonitorJava.class))
         sClassPool.insertClassPath(new ClassClassPath(MethodBeatMonitorJava.class));
         //过滤掉一些生成的类
         if (check(file)) {
@@ -179,15 +169,7 @@ class BeatInject {
             if (ctClass.isFrozen()) {
                 ctClass.defrost()
             }
-//            ctClass.getDeclaredMethods().each { ctMethod ->
-//                println " ctMethod ${ctMethod.getLongName()}"
-//                if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
-//                    def methodSign = ctMethod.getLongName().toString()
-//                    ctMethod.insertBefore("com.hapi.aop.MethodBeatMonitorJava.logS( \"${methodSign}\");")
-//                    ctMethod.insertAfter("com.hapi.aop.MethodBeatMonitorJava.logE( \"${methodSign}\");")
-//                }
-//
-//            }
+
             initMethod(ctClass,clazz)
             ctClass.writeFile(baseClassPath)
             ctClass.detach()//释放
