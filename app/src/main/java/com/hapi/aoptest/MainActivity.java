@@ -1,5 +1,6 @@
 package com.hapi.aoptest;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -7,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.hapi.aopbeat.MethodBeatMonitorJava;
+import com.hapi.mylibrary.EmpActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -23,8 +25,8 @@ public class MainActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new S().a();
-                new S().b();
+                Intent i = new Intent(MainActivity.this, EmpActivity.class);
+                startActivity(i);
             }
         });
         new S().b();

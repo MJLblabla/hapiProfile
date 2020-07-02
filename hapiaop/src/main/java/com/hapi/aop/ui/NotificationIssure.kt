@@ -11,7 +11,9 @@ import android.util.Log
 import com.hapi.aop.ActivityCollection.currentActivity
 import com.hapi.aop.HapiMonitorPlugin.context
 import com.hapi.aop.R
+import com.hapi.aopbeat.Beat
 import com.hapi.aopbeat.Issure
+import java.util.*
 
 object NotificationIssure {
     private var id = 1
@@ -26,11 +28,28 @@ object NotificationIssure {
                 "\n foregroundPageName  ${issure.foregroundPageName}" +
                 "  cpuRate ${issure.cpuRate} \n\n"
         val sb = StringBuffer()
-        sb.append(msg)
+        sb.append(msg+"  调用顺序：")
+
+
+
         issure.methodBeats?.forEachIndexed { index, methodBeat ->
             sb.append(" ${index}  ${methodBeat.sign}  cost ${methodBeat.cost} \n")
 
         }
+        sb.append("耗时排序 : '\n\n\n")
+
+        issure.methodBeats?.let {
+            Collections.sort<Beat>(it, object : Comparator<Beat> {
+                override fun compare(o1: Beat, o2: Beat): Int {
+                    return  o2.cost-o1.cost
+                }
+            })
+        }
+
+        issure.methodBeats?.forEachIndexed { index, methodBeat ->
+            sb.append(" ${methodBeat.sign}  cost ${methodBeat.cost} \n")
+        }
+
 
         if (currentActivity != null) {
             intent = Intent(currentActivity, IssureActivity::class.java)

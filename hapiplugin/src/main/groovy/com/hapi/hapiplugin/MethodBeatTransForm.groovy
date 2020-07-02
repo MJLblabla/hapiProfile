@@ -104,7 +104,9 @@ class MethodBeatTransForm extends AbsTransForm{
             if(whiteJarArray!=null&&whiteJarArray.length!=0){
                 hasWhite = true
                 for(String s:whiteJarArray){
+
                   def  eq=  jarInput.name.startsWith(s) || jarInput.name == s
+                    println("jarInput.name "+jarInput.name + "    s "+s+" "+eq)
                     if( eq){
                      return true
                     }

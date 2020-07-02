@@ -7,7 +7,7 @@ hapi{
     androidBaseJarOnly true
     jarTransform true
     isOpen true
-    whiteJarList "httpclient,gson"
+    whiteJarList ":mylibrary,com.pince.maven:lib-vmbaseframe,httpclient,gson"
     blackList  "androidx/core/graphics"
 }
 
@@ -47,6 +47,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(":hapiaop")
+    implementation project(":mylibrary")
     implementation "com.pince.maven:hapiAopBeat:1.0.2"
 
 }

@@ -117,7 +117,9 @@ object HapiMonitorPlugin {
                     }
 
                     res?.await()?.let { beat->
-
+                        if(beat.isEmpty()){
+                            return@let
+                        }
                         HapiMonitorPlugin.mMonitorConfig.issureCallBack?.let {
                             val issure = Issure()
                             issure.msg = msg
