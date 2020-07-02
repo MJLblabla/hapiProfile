@@ -28,7 +28,7 @@ object NotificationIssure {
         val sb = StringBuffer()
         sb.append(msg)
         issure.methodBeats?.forEachIndexed { index, methodBeat ->
-            sb.append("top  ${index}  ${methodBeat.sign}  cost ${methodBeat.cost} \n")
+            sb.append(" ${index}  ${methodBeat.sign}  cost ${methodBeat.cost} \n")
 
         }
 
