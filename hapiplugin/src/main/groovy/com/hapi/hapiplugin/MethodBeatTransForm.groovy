@@ -65,14 +65,23 @@ class MethodBeatTransForm extends AbsTransForm{
      boolean  needTransform(){
         def hapi =  mProject.hapi
         def  isOpen = hapi.isOpen
-        println("hapi ${hapi.isOpen} ${hapi.msg} ")
+
 
         String black = hapi.blackList
         BeatInject.blackList = black.split(",")
+        BeatInject.blackList.each{ it ->
+            println("blackList each ${it} ")
+        }
+
         androidBaseJarOnly = hapi.androidBaseJarOnly
         jarTransform = hapi.jarTransform
         whiteJarArray =hapi.whiteJarList.split(",")
-        println "blackList  ${black.toString()}"
+
+        whiteJarArray.each{ it ->
+            println("whiteJarArray each ${it} ")
+        }
+
+
         return isOpen && !isReleaseBuildType()
     }
 

@@ -132,7 +132,6 @@ abstract class AbsTransForm extends Transform {
 
                         @Override
                         Void call() {
-                            println("jar change  "+ jarInput.name+ "  jar.path "+jarInput.file.path+  "  dest"+dest+"")
                             transformJarInput(jarInput,outputProvider)
                             return null
                         }
@@ -152,7 +151,6 @@ abstract class AbsTransForm extends Transform {
 
                 @Override
                 Void call()  {
-                    println("不处理增量编译  "+ jarInput.name+ "  jar.path "+jarInput.file.path)
                     transformJarInput(jarInput,outputProvider)
                 }
             })

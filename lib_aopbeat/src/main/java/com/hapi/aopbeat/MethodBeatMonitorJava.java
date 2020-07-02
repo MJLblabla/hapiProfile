@@ -67,26 +67,41 @@ public class MethodBeatMonitorJava {
      * 取出打点记录 回调上报
      * @param msg
      */
-    public static void issue(String msg) {
+    public static void issue(String msg,int maxTop) {
+        LinkedList<Beat> beatsClone = new LinkedList<Beat>();
+
+        int maxCost=0;
+        for (int i=beats.size()-1;i<0;i--){
+            beatsClone.add(beats.get(i));
+           if(beats.get(i).cost>maxCost){
+               maxCost=beats.get(i).cost;
+           }
+        }
+        beatsClone.addAll(beats);
+
         if(mBeatAdapter==null){
             return;
         }
 
-        if(beats.isEmpty()){
+        if(beatsClone.isEmpty()){
             return;
         }
 
-        beats.sort(new Comparator<Beat>() {
-            @Override
-            public int compare(Beat o1, Beat o2) {
-                return o2.cost - o1.cost;
-            }
-        });
+//        beatsClone.sort(new Comparator<Beat>() {
+//            @Override
+//            public int compare(Beat o1, Beat o2) {
+//                return o2.cost - o1.cost;
+//            }
+//        });
+
+        if(maxCost<maxTop){
+            return;
+        }
 
         String methodName = "";
         int cost = 0;
 
-        Iterator<Beat> iterator = (Iterator<Beat>) beats.iterator();
+        Iterator<Beat> iterator = (Iterator<Beat>) beatsClone.iterator();
         LinkedList<Beat> beatTemp = new LinkedList<Beat>();
 
         while (iterator.hasNext()) {

@@ -240,6 +240,7 @@ class BeatInject {
                 !filePath.startsWith('kotlinx/') &&
                 !filePath.startsWith('kotlin/') &&
                 !filePath.contains('com/hapi/aop/') &&
+                !filePath.contains('androidx/lifecycle/') &&
                 !filePath.contains('BuildConfig.class')
     }
 
