@@ -7,6 +7,6 @@ public interface BeatAdapter {
     public boolean isMainStart();
     public long getMainThreadId();
     public int getCurrentTime();
-    public void issure(List<Beat> beats, String msg);
+    public void issure(List<Beat> beats, int maxTop,String msg);
 
 }

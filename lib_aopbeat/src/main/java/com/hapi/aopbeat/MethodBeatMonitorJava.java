@@ -68,72 +68,7 @@ public class MethodBeatMonitorJava {
      * @param msg
      */
     public static void issue(String msg,int maxTop) {
-        LinkedList<Beat> beatsClone = new LinkedList<Beat>();
-
-        int maxCost=0;
-        for (int i=beats.size()-1;i<0;i--){
-            beatsClone.add(beats.get(i));
-           if(beats.get(i).cost>maxCost){
-               maxCost=beats.get(i).cost;
-           }
-        }
-        beatsClone.addAll(beats);
-
-        if(mBeatAdapter==null){
-            return;
-        }
-
-        if(beatsClone.isEmpty()){
-            return;
-        }
-
-//        beatsClone.sort(new Comparator<Beat>() {
-//            @Override
-//            public int compare(Beat o1, Beat o2) {
-//                return o2.cost - o1.cost;
-//            }
-//        });
-
-        if(maxCost<maxTop){
-            return;
-        }
-
-        String methodName = "";
-        int cost = 0;
-
-        Iterator<Beat> iterator = (Iterator<Beat>) beatsClone.iterator();
-        LinkedList<Beat> beatTemp = new LinkedList<Beat>();
-
-        while (iterator.hasNext()) {
-            Beat i = iterator.next();
-
-            int index =i.sign.lastIndexOf('(');
-            if(index<=0){
-                continue;
-            }
-
-            String itemMethodNameArrayButParam2=i.sign.substring(0,index);
-            String itemMethodNameArrayParam = i.sign.substring(index);
-
-            String[] itemMethodNameArray = itemMethodNameArrayButParam2.split("\\.");
-            if(itemMethodNameArray.length<2){
-                continue;
-            }
-
-            String name = itemMethodNameArray[itemMethodNameArray.length - 1] +itemMethodNameArrayParam;
-            if (name .equals(methodName )&& i.cost == cost) {
-                iterator.remove();
-            } else {
-                beatTemp.add(i);
-                if (beatTemp.size() > issureTop) {
-                    break;
-                }
-            }
-            methodName = name;
-            cost = i.cost;
-
-        }
-        mBeatAdapter.issure(beatTemp,msg);
+        mBeatAdapter.issure(beats,maxTop,msg);
     }
 
 
