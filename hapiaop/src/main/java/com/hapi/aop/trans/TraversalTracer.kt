@@ -52,7 +52,7 @@ class TraversalTracer :ITracer(){
             if(isStart){
                 val timeSpan = LoopTimer.time - startTime
                 if(timeSpan >  HapiMonitorPlugin.mMonitorConfig.frameCostIssues){
-                    MethodBeatMonitorJava.issue("单帧耗时过大 ${timeSpan}")
+                    MethodBeatMonitorJava.issue("单帧耗时过大 ${timeSpan}",timeSpan)
                 }
                 addCallbackQueues()
             }

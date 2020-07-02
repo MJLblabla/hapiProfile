@@ -25,7 +25,7 @@ class BlockTracer : ITracer() {
         val timeCost = endTime - startTime
 
         if (timeCost > HapiMonitorPlugin.mMonitorConfig.blockCostIssue) {
-            MethodBeatMonitorJava.issue("主线程卡顿 $timeCost")
+            MethodBeatMonitorJava.issue("主线程卡顿 $timeCost",timeCost)
         }
     }
 
