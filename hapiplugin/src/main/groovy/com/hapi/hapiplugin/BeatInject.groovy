@@ -43,7 +43,7 @@ class BeatInject {
 
         JarFile jarFile = new JarFile(jarInput.file)
         Enumeration enumeration = jarFile.entries()
-        File tmpFile = new File(jarInput.file.getParent() + File.separator +(Math.random()*100)+ "classes_temp.jar")
+        File tmpFile = new File(jarInput.file.getParent()+File.separator +(Math.random()*100)+ "classes_temp.jar")
 
         //避免上次的缓存被重复插入
         if(tmpFile.exists()){
@@ -108,30 +108,29 @@ class BeatInject {
 
     private static void initMethod(CtClass ctClass, String entryName) {
         ctClass.getDeclaredMethods().each { ctMethod ->
-            try {
-                if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
-                    def methodSign = ctMethod.getLongName().toString()
-                    ctMethod.addLocalVariable("needBeat", CtClass.booleanType);
-                    ctMethod.addLocalVariable("costStartTime", CtClass.longType);
-                    ctMethod.addLocalVariable("diff", CtClass.intType);
-                    ctMethod.insertBefore("" +
-                            "  needBeat=com.hapi.aopbeat.MethodBeatMonitorJava.checkDeep();" +
-                            "         costStartTime =  com.hapi.aopbeat.MethodBeatMonitorJava.getTime();" +
-                            "")
-                    ctMethod.insertAfter("" +
-                            "  diff = (int) (com.hapi.aopbeat.MethodBeatMonitorJava.getTime()-costStartTime);" +
-                            "        if(needBeat && diff>com.hapi.aopbeat.MethodBeatMonitorJava.getMinCostFilter()){" +
-                            "            com.hapi.aopbeat.MethodBeatMonitorJava.addBeat(new com.hapi.aopbeat.Beat(diff,\"${methodSign}\"));" +
-                            "        }" +
-                            "")
+            if(!ctMethod.name.equals("invokeSuspend")){
+                try {
+                    if (!ctMethod.isEmpty() && !Modifier.isNative(ctMethod.getModifiers())) {
+                        def methodSign = ctMethod.getLongName().toString()
+                        ctMethod.addLocalVariable("needBeat", CtClass.booleanType);
+                        ctMethod.addLocalVariable("costStartTime", CtClass.longType);
+                        ctMethod.addLocalVariable("diff", CtClass.intType);
+                        ctMethod.insertBefore("" +
+                                "  needBeat=com.hapi.aopbeat.MethodBeatMonitorJava.checkDeep();" +
+                                "         costStartTime =  com.hapi.aopbeat.MethodBeatMonitorJava.getTime();" +
+                                "")
+                        ctMethod.insertAfter("" +
+                                "  diff = (int) (com.hapi.aopbeat.MethodBeatMonitorJava.getTime()-costStartTime);" +
+                                "        if(needBeat && diff>com.hapi.aopbeat.MethodBeatMonitorJava.getMinCostFilter()){" +
+                                "            com.hapi.aopbeat.MethodBeatMonitorJava.addBeat(new com.hapi.aopbeat.Beat(diff,\"${methodSign}\"));" +
+                                "        }" +
+                                "")
+                    }
+                } catch (Exception e) {
+                    // e.printStackTrace()
                 }
-                def str= "entryName ${entryName} ctMethod ${ctMethod.getLongName()}   成功"
-                println(str)
-            } catch (Exception e) {
-               // e.printStackTrace()
-                def str= "entryName ${entryName} ctMethod ${ctMethod.getLongName()} 失败 ${e.toString()}"
-                 println(str)
             }
+
 
         }
 
@@ -172,6 +171,7 @@ class BeatInject {
 
             initMethod(ctClass,clazz)
             ctClass.writeFile(baseClassPath)
+
             ctClass.detach()//释放
         } catch (Exception e) {
 
