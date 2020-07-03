@@ -74,7 +74,6 @@ class BeatInject {
                 initMethod(ctClass,entryName)
                 jarOutputStream.write(ctClass.toBytecode())
                 try {
-                    ctClass.writeFile()
                     ctClass.detach()
                 } catch (Exception e) {
                     e.printStackTrace()

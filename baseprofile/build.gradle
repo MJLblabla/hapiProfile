@@ -1,28 +1,31 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.hapi.hapiplugin'
 
-hapi{
-    androidBaseJarOnly true
-    jarTransform true
-    isOpen true
-    whiteJarList ":mylibrary,com.pince.maven:lib-vmbaseframe,httpclient,gson"
-    blackList  "androidx/core/graphics"
+apply plugin: 'com.pince.upaar'
+
+
+upinfo{
+    groupId = 'com.pince.maven' //选填 默认为此参数
+    artifactId = 'hapi_memory' //必填 组件名称
+    version = '1.0.0'     //必填 组件版本
+    gitRepo = 'origin' //选填
+    packaging = 'aar' //选填 默认aar 可填jar
 }
 
+
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion depend.compileSdkVersion
+
 
     defaultConfig {
-        applicationId "com.hapi.aoptest"
-        minSdkVersion 17
-        targetSdkVersion 29
+        minSdkVersion depend.minSdkVersion
+        targetSdkVersion depend.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName upinfo.version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildTypes {
@@ -38,17 +41,13 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation 'androidx.core:core-ktx:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.google.android.material:material:1.1.0'
-    implementation 'androidx.annotation:annotation:1.1.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation project(':hapiBlock')
-    implementation project(":mylibrary")
-    implementation project(":hapiMemory")
-    implementation "com.pince.maven:hapiAopBeat:1.0.3"
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5'
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.4"
 
 }

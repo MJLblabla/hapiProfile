@@ -33,7 +33,7 @@ abstract class AbsTransForm extends Transform {
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         super.transform(transformInvocation)
-
+         println("AbsTransForm  start transform")
         if(needTransform()){
             boolean isIncremental = transformInvocation.isIncremental()
 
@@ -99,7 +99,7 @@ abstract class AbsTransForm extends Transform {
                 }
             }
         }
-
+        println("AbsTransForm  stop transform")
 
     }
 

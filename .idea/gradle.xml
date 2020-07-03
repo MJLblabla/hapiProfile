@@ -11,7 +11,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/hapiaop" />
+            <option value="$PROJECT_DIR$/baseprofile" />
+            <option value="$PROJECT_DIR$/hapiBlock" />
+            <option value="$PROJECT_DIR$/hapiMemory" />
             <option value="$PROJECT_DIR$/hapiplugin" />
             <option value="$PROJECT_DIR$/lib_aopbeat" />
             <option value="$PROJECT_DIR$/mylibrary" />
