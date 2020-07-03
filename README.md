@@ -1,25 +1,34 @@
 # hapiProfile
 性能监控，主线程卡顿，单帧渲染超时，帧率
 
-
+ 分支 ： marstDev
 
 
 apply plugin: 'com.hapi.hapiplugin'
-implementation "com.pince.maven:hapiAop:1.0.0"
-  
+implementation "com.pince.maven:hapiAop:lasr-version"
+
 
 hapiProfile
 ===========
+## 卡顿篇 ##
 
-插件
-    
-    
     apply plugin: 'com.hapi.hapiplugin'
-    
-      hapi{
-        isOpen true //是否开启
-        blackList  "androidx/core/graphics,com/alibaba/fastjson" //黑名单
-    }
+hapi{
+    androidBaseJarOnly true //系统库插桩
+    jarTransform true    //三方jar
+    isOpen true        //开启
+    whiteJarList ":module_living," +   //模块
+            ":lib_beautyui," +
+            ":biz_gift,:base," +
+            ":comp_im,:comp_living," +
+            ":module_chat,:module_login," +
+            ":module_main,module_user," +
+            "com.pince.maven:lib-vmbaseframe," +  //三方库
+            "com.pince.maven:lib-vmdialog," +
+            "com.pince.maven:lib-lifecycleLiveTXAV"
+
+    blackList  "androidx/core/graphics"
+}
 
 
 ![此处输入图片的描述][1]
