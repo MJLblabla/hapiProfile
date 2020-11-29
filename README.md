@@ -4,15 +4,13 @@
  分支 ： marstDev
 
 
-apply plugin: 'com.hapi.hapiplugin'
-implementation "com.pince.maven:hapiAop:lasr-version"
-
-
 hapiProfile
 ===========
 ## 卡顿篇 ##
 
-    apply plugin: 'com.hapi.hapiplugin'
+    
+
+```javascript
 hapi{
     androidBaseJarOnly true //系统库插桩
     jarTransform true    //三方jar
@@ -29,6 +27,7 @@ hapi{
 
     blackList  "androidx/core/graphics"
 }
+```
 
 
 ![此处输入图片的描述][1]
