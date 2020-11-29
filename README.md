@@ -103,5 +103,5 @@ hapi{
     var stack = ""
 
 
-  [1]: http://git.7guoyouxi.com/android_repo/hapiProfile/blob/master/app/a.jpg
-  [2]: http://git.7guoyouxi.com/android_repo/hapiProfile/blob/master/app/b.jpg
+  [1]: https://github.com/MJLblabla/hapiProfile/blob/master/app/a.jpg?raw=true
+  [2]: https://github.com/MJLblabla/hapiProfile/blob/master/app/b.jpg?raw=true
